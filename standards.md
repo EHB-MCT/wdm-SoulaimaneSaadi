@@ -69,21 +69,41 @@ QR → client leest payload → API registreert server-timestamp → zichtbaar i
 
 5) Styling & Typografie
 
-Font: 
+Font:
+
+Primair: Inter (fallback: system-ui, -apple-system, Segoe UI, Roboto)
 
 Kleuren:
 
-Primair:
+Primair: #2F6BFF (actie/knoppen)
 
-Secundair:
+Secundair: #FFB020 (accent/feedback)
 
-Achtergrond:
+Achtergrond: #F7F8FA (app bg), Kaart/Paneel: #FFFFFF
 
-Tekst:
+Tekst (primaire): #111827
 
-UI: 
+Tekst (secundaire): #6B7280
 
-Animatie: 
+Lijn/Border: #E5E7EB
+
+Succes: #16A34A · Waarschuwing: #F59E0B · Fout: #DC2626
+
+UI (component-richtlijnen):
+
+Buttons: 12px/16px padding, radius 10px, bold 600, primair op donker (#2F6BFF) met witte tekst; hover: 6% donkerder.
+
+Inputs: 12px padding, radius 10px, border 1px solid #E5E7EB, focus-ring 0 0 0 3px rgba(47,107,255,.25).
+
+Kaarten: radius 16px, shadow 0 8px 24px rgba(0,0,0,.06), binnenmarges 20px.
+
+Navigatie (tab/stack): vaste headerhoogte 56px, bg wit, titel semibold 17px.
+
+Animatie:
+
+Micro-animaties: 150–200ms ease-out (hover/focus/pressed).
+
+QR-scan feedback: card “bounce-in” (scale 0.98→1, 180ms) + kleurflash rand (primair → neutraal).
 
 
 6) Testplan
