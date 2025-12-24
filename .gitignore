@@ -46,3 +46,10 @@ mongo-data/
 
 # System
 Thumbs.db
+
+# Frontend
+admin-frontend/node_modules/
+child-frontend/node_modules/
+
+admin-frontend/dist/
+child-frontend/dist/
