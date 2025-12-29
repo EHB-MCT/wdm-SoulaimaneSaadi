@@ -4,3 +4,9 @@ https://reactnative.dev/docs/set-up-your-environment?os=macos&platform=ios: Run 
 liscense, readme, code of conduct, contributing guideline
 
 [Dockerfile](https://docs.docker.com/reference/dockerfile/)
+
+[useState](https://react.dev/reference/react/useState)
+
+[useEffect](https://react.dev/reference/react/useEffect)
+
+
