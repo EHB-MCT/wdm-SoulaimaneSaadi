@@ -43,14 +43,14 @@ export default function App() {
         <input
           value={childName}
           onChange={(e) => setChildName(e.target.value)}
-          placeholder="Nom de l’enfant"
+          placeholder="Child name"
         />
         <button onClick={createChildProfile} style={{ marginLeft: 10 }}>
-          Create
+          Create child
         </button>
       </div>
 
-      <h2>Enfants</h2>
+      <h2>Children list</h2>
 
       {childrenList.map((child) => (
         <div
