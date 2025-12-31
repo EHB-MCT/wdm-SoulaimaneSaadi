@@ -24,4 +24,21 @@ router.post("/register", async (req, res) => {
   res.json(child);
 });
 
+// Login an existing child
+
+router.post("/login", async (req, res) => {
+    const { email, password } = req.body;
+  
+    const child = await Child.findOne({ email, password });
+    if (!child) {
+      return res.status(401).json({ message: "Wrong credentials" });
+    }
+  
+    res.json(child);
+  });
+
+
 export default router;
+
+
+  
