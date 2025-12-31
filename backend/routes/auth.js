@@ -24,8 +24,8 @@ router.post("/register", async (req, res) => {
   res.json(child);
 });
 
-// Login an existing child
 
+// Login an existing child
 router.post("/login", async (req, res) => {
     const { email, password } = req.body;
   
