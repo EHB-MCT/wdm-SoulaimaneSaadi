@@ -1,35 +1,74 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { useEffect, useState } from "react";
 
-function App() {
-  const [count, setCount] = useState(0)
+export default function App() {
+  const [childrenList, setChildrenList] = useState([]);
+  const [childName, setChildName] = useState("");
+
+  async function fetchChildren() {
+    const response = await fetch("http://localhost:3000/children");
+    const data = await response.json();
+    setChildrenList(data);
+  }
+
+  async function createChildProfile() {
+    await fetch("http://localhost:3000/children", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name: childName })
+    });
+
+    setChildName("");
+    await fetchChildren();
+  }
+
+  async function punishChildById(childId) {
+    await fetch("http://localhost:3000/events", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ childId, type: "PUNISH" })
+    });
+
+    await fetchChildren();
+  }
+
+  useEffect(() => {
+    fetchChildren();
+  }, []);
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
-}
+    <div style={{ padding: 20, fontFamily: "Arial" }}>
+      <h1>Admin Dashboard</h1>
 
-export default App
+      <div style={{ marginBottom: 20 }}>
+        <input
+          value={childName}
+          onChange={(e) => setChildName(e.target.value)}
+          placeholder="Child name"
+        />
+        <button onClick={createChildProfile} style={{ marginLeft: 10 }}>
+          Create child
+        </button>
+      </div>
+
+      <h2>Children list</h2>
+
+      {childrenList.map((child) => (
+        <div
+          key={child._id}
+          style={{
+            border: "1px solid #ccc",
+            padding: 10,
+            marginBottom: 10
+          }}
+        >
+          <div><b>{child.name}</b></div>
+          <div>Restricted: {String(child.isRestricted)}</div>
+
+          <button onClick={() => punishChildById(child._id)}>
+            Punish
+          </button>
+        </div>
+      ))}
+    </div>
+  );
+}
