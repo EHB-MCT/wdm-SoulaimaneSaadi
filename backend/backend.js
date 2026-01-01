@@ -1,27 +1,34 @@
 import express from "express";
 import cors from "cors";
 import mongoose from "mongoose";
+import dotenv from "dotenv";
+
+import childrenRoutes from "./routes/children.js";
+import eventsRoutes from "./routes/events.js";
+
+dotenv.config();
 
 const app = express();
+const PORT = process.env.PORT || 3000;
 
+// middlewares
 app.use(cors());
 app.use(express.json());
 
-const PORT = process.env.PORT || 3000;
-const MONGO_URI = process.env.MONGO_URI;
+// routes
+app.use("/children", childrenRoutes);
+app.use("/events", eventsRoutes);
 
-// MongoDB connection
-mongoose
-  .connect(MONGO_URI)
-  .then(() => console.log("Mongo connected"))
-  .catch((err) => console.log("Mongo error:", err.message));
-
-// Health check
+// health check
 app.get("/health", (req, res) => {
   res.send("Backend running");
 });
 
-// Start server
-app.listen(PORT, () => {
-  console.log("Server running on port " + PORT);
-});
+//  mongo connect with start server
+mongoose
+  .connect(process.env.MONGO_URI)
+  .then(() => {
+    console.log("Mongo connected");
+    app.listen(PORT, () => console.log("Server running on port " + PORT));
+  })
+  .catch((err) => console.log("Mongo error:", err.message));

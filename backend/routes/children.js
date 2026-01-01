@@ -27,4 +27,8 @@ router.get("/:id", async (req, res) => {
   res.json(child);
 });
 
+<<<<<<< HEAD
 export default router;
+=======
+export default router;
+>>>>>>> feature/backend-routes
