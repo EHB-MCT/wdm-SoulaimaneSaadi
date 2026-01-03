@@ -1,76 +1,82 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 export default function App() {
-  const [childrenList, setChildrenList] = useState([]);
-  const [selectedChildId, setSelectedChildId] = useState("");
-  const [selectedChild, setSelectedChild] = useState(null);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [child, setChild] = useState(null);
 
-  async function fetchChildren() {
-    const response = await fetch("http://localhost:3000/children");
-    const data = await response.json();
-    setChildrenList(data);
+  async function login() {
+    const res = await fetch("http://localhost:3000/auth/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password })
+    });
+
+    if (res.ok) {
+      const data = await res.json();
+      setChild(data);
+    } else {
+      alert("Login failed");
+    }
   }
 
-  async function fetchChildById(childId) {
-    if (!childId) return;
-    const response = await fetch(
-      `http://localhost:3000/children/${childId}`
+  async function register() {
+    const res = await fetch("http://localhost:3000/auth/register", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        name: email, // simple: use email as name
+        email,
+        password
+      })
+    });
+
+    if (res.ok) {
+      const data = await res.json();
+      setChild(data);
+    } else {
+      alert("Register failed");
+    }
+  }
+
+  if (!child) {
+    return (
+      <div style={{ padding: 20 }}>
+        <h1>Child Login</h1>
+
+        <input
+          placeholder="Email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+        />
+
+        <input
+          type="password"
+          placeholder="Password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+        />
+
+        <div style={{ marginTop: 10 }}>
+          <button onClick={login}>Login</button>
+          <button onClick={register} style={{ marginLeft: 8 }}>
+            Register
+          </button>
+        </div>
+      </div>
     );
-    const data = await response.json();
-    setSelectedChild(data);
   }
-
-  useEffect(() => {
-    fetchChildren();
-  }, []);
-
-  useEffect(() => {
-    fetchChildById(selectedChildId);
-  }, [selectedChildId]);
-
-  const isRestricted = selectedChild?.isRestricted;
 
   return (
-    <div style={{ padding: 20, fontFamily: "Arial" }}>
-      <h1>Child Interface</h1>
+    <div style={{ padding: 20 }}>
+      <h1>Welcome {child.name}</h1>
 
-      <div style={{ marginBottom: 20 }}>
-        <label>Select your name: </label>
-        <select
-          value={selectedChildId}
-          onChange={(e) => setSelectedChildId(e.target.value)}
-        >
-          <option value="">-- Choose --</option>
-          {childrenList.map((child) => (
-            <option key={child._id} value={child._id}>
-              {child.name}
-            </option>
-          ))}
-        </select>
-      </div>
+      <button disabled={child.isRestricted}>
+        Take the ball
+      </button>
 
-      {!selectedChild && <p>Please select your name to continue.</p>}
-
-      {selectedChild && (
-        <>
-          <p>Hello {selectedChild.name}</p>
-
-          <h2>Available objects</h2>
-
-          <button disabled={isRestricted}>
-            Take the ball
-          </button>
-
-          {isRestricted && (
-            <p style={{ marginTop: 10 }}>
-              This object is not available today.
-            </p>
-          )}
-
-          <div style={{ marginTop: 30 }}>
-            <small>(The child does not know why.)</small>
-          </div>
-        </>
+      {child.isRestricted && (
+        <p>This item is not available today.</p>
       )}
     </div>
   );
