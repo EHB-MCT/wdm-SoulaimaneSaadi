@@ -74,7 +74,7 @@ export default function App() {
 
   // filtered list
   const filteredChildren = showPresentOnly
-    ? children.filter((c) => c.status === "present")
+    ? children.filter((child) => child.status === "present")
     : children;
 
   if (!admin) {
@@ -120,17 +120,20 @@ export default function App() {
 
           {filteredChildren.length === 0 && <p>No children yet.</p>}
 
-          {filteredChildren.map((c) => (
+          {filteredChildren.map((child) => (
             <div
-              key={c._id}
+              key={child._id}
               className={`child-card ${
-                selectedChildId === c._id ? "selected" : ""
+                selectedChildId === child._id ? "selected" : ""
               }`}
-              onClick={() => setSelectedChildId(c._id)}
+              onClick={() => setSelectedChildId(child._id)}
             >
-              <strong>{c.name}</strong>
-              <p>Status: {c.status}</p>
-              <p>Restricted: {String(c.isRestricted)}</p>
+              <strong>{child.name}</strong>
+              <p>Status: {child.status}</p>
+              <p>Restricted: {String(child.isRestricted)}</p>
+
+              {/* ✅ Item (loan) */}
+              <p>Item: {child.currentItem ? child.currentItem : "none"}</p>
 
               {/* label + check in/out */}
               <select
@@ -150,7 +153,7 @@ export default function App() {
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
-                    createEvent(c._id, "CHECK_IN");
+                    createEvent(child._id, "CHECK_IN");
                   }}
                 >
                   Check-in
@@ -159,7 +162,7 @@ export default function App() {
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
-                    createEvent(c._id, "CHECK_OUT");
+                    createEvent(child._id, "CHECK_OUT");
                   }}
                 >
                   Check-out
@@ -170,7 +173,7 @@ export default function App() {
                 style={{ marginTop: 10 }}
                 onClick={(e) => {
                   e.stopPropagation();
-                  punishChild(c._id);
+                  punishChild(child._id);
                 }}
               >
                 Punish
