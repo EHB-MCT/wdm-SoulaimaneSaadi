@@ -7,6 +7,8 @@ import authRoutes from "./routes/auth.js";
 import childrenRoutes from "./routes/children.js";
 import eventsRoutes from "./routes/events.js";
 import adminAuthRoutes from "./routes/adminAuth.js";
+import itemRoutes from "./routes/items.js";
+
 
 dotenv.config();
 
@@ -20,6 +22,7 @@ app.use("/auth", authRoutes);
 app.use("/children", childrenRoutes);
 app.use("/events", eventsRoutes);
 app.use("/admin", adminAuthRoutes);
+app.use("/items", itemRoutes);
 
 app.get("/health", (req, res) => {
   res.send("Backend running");
