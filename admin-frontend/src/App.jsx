@@ -172,7 +172,9 @@ export default function App() {
 
           {events.map((ev) => (
             <div key={ev._id} className="event-item">
-              <strong>{ev.type}</strong>
+              <strong>
+                  {ev.type} {ev.label ? `(${ev.label})` : ""}
+              </strong>
               {ev.label ? <span> ({ev.label})</span> : null}
               <br />
               <small>{new Date(ev.timestamp).toLocaleString()}</small>
