@@ -1,42 +1,67 @@
-#root {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
 }
 
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
+ /*LOGIN PAGE */ 
+.login-container {
+  padding: 40px;
 }
 
-@keyframes logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+.login-container input {
+  display: block;
+  margin-bottom: 10px;
+  padding: 6px;
+  width: 200px;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
-  }
+.login-container button {
+  padding: 6px 12px;
 }
 
-.card {
-  padding: 2em;
+ /* DASHBOARD */ 
+ .dashboard {
+  padding: 20px;
 }
 
-.read-the-docs {
-  color: #888;
+.dashboard-content {
+  display: flex;
+  gap: 30px;
+  margin-top: 20px;
+}
+
+ /* CHILDREN PANEL */ 
+ .children-panel {
+  width: 40%;
+}
+
+.child-card {
+  border: 1px solid #ccc;
+  padding: 10px;
+  margin-bottom: 10px;
+  cursor: pointer;
+}
+
+.child-card.selected {
+  background-color: #f2f2f2;
+}
+
+.child-card button {
+  margin-top: 8px;
+}
+
+ /* EVENTS PANEL */ 
+.events-panel {
+  width: 60%;
+}
+
+.event-item {
+  border-bottom: 1px solid #ddd;
+  padding: 8px 0;
+}
+
+.event-item small {
+  display: block;
+  font-size: 12px;
+  color: #666;
 }

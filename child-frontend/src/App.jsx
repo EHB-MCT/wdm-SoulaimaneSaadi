@@ -94,7 +94,7 @@ export default function App() {
 </button>
 
       {child.isRestricted && (
-        <p>This item is not available today.</p>
+        <p>You need to be more kind buddy.</p>
       )}
     </div>
   );
