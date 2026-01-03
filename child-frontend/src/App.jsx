@@ -72,30 +72,29 @@ export default function App() {
       <h1>Welcome {child.name}</h1>
 
       <button
-  disabled={child.isRestricted}
-  onClick={async () => {
-    const res = await fetch("http://localhost:3000/events", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        childId: child._id,
-        type: "LOAN_BALL"
-      })
-    });
+        disabled={child.isRestricted}
+        onClick={async () => {
+          const res = await fetch("http://localhost:3000/loan/take", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              childId: child._id,
+              itemName: "Ball"
+            })
+          });
 
-    if (res.ok) {
-      alert("Ball asked ✅");
-    } else {
-      alert("Error");
-    }
-  }}
->
-  Take the ball
-</button>
+          if (res.ok) {
+            alert("You took the ball");
+          } else {
+            const err = await res.json();
+            alert(err.message || "Error");
+          }
+        }}
+      >
+        Take the ball
+      </button>
 
-      {child.isRestricted && (
-        <p>You need to be more kind buddy.</p>
-      )}
+      {child.isRestricted && <p>You need to be more kind buddy.</p>}
     </div>
   );
 }
