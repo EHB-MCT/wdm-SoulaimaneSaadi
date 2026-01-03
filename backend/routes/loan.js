@@ -5,7 +5,7 @@ import Event from "../models/Event.js";
 
 const router = express.Router();
 
-// TAKE ITEM
+// Take item
 router.post("/take", async (req, res) => {
   const { childId, itemName } = req.body;
 
