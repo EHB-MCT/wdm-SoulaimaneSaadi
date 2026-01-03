@@ -71,9 +71,27 @@ export default function App() {
     <div style={{ padding: 20 }}>
       <h1>Welcome {child.name}</h1>
 
-      <button disabled={child.isRestricted}>
-        Take the ball
-      </button>
+      <button
+  disabled={child.isRestricted}
+  onClick={async () => {
+    const res = await fetch("http://localhost:3000/events", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        childId: child._id,
+        type: "LOAN_BALL"
+      })
+    });
+
+    if (res.ok) {
+      alert("Ball asked ✅");
+    } else {
+      alert("Error");
+    }
+  }}
+>
+  Take the ball
+</button>
 
       {child.isRestricted && (
         <p>This item is not available today.</p>
