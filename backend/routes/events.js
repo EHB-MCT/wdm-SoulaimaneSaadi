@@ -10,7 +10,8 @@ router.post("/", async (req, res) => {
     const event = new Event({
       childId: req.body.childId,
       type: req.body.type,
-      timestamp: new Date()
+      timestamp: new Date(),
+      label: req.body.label
     });
 
     await event.save();
