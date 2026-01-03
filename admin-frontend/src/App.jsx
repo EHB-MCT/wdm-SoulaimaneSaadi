@@ -6,8 +6,11 @@ export default function App() {
   const [password, setPassword] = useState("");
   const [admin, setAdmin] = useState(null);
 
-  //  label picker
+  // label picker
   const [label, setLabel] = useState("mama");
+
+  // filter present only
+  const [showPresentOnly, setShowPresentOnly] = useState(false);
 
   const [children, setChildren] = useState([]);
   const [selectedChildId, setSelectedChildId] = useState("");
@@ -45,7 +48,7 @@ export default function App() {
     setEvents(data);
   }
 
-  //  generic event creator
+  // generic event creator
   async function createEvent(childId, type) {
     await fetch("http://localhost:3000/events", {
       method: "POST",
@@ -68,6 +71,11 @@ export default function App() {
   useEffect(() => {
     if (admin) loadEvents(selectedChildId);
   }, [selectedChildId, admin]);
+
+  // filtered list
+  const filteredChildren = showPresentOnly
+    ? children.filter((c) => c.status === "present")
+    : children;
 
   if (!admin) {
     return (
@@ -100,9 +108,19 @@ export default function App() {
         <div className="children-panel">
           <h2>Children</h2>
 
-          {children.length === 0 && <p>No children yet.</p>}
+          {/* ✅ checkbox filter */}
+          <label style={{ display: "block", marginBottom: 10 }}>
+            <input
+              type="checkbox"
+              checked={showPresentOnly}
+              onChange={(e) => setShowPresentOnly(e.target.checked)}
+            />{" "}
+            Show present today only
+          </label>
 
-          {children.map((c) => (
+          {filteredChildren.length === 0 && <p>No children yet.</p>}
+
+          {filteredChildren.map((c) => (
             <div
               key={c._id}
               className={`child-card ${
@@ -114,7 +132,7 @@ export default function App() {
               <p>Status: {c.status}</p>
               <p>Restricted: {String(c.isRestricted)}</p>
 
-              /* label + check in/out */
+              {/* label + check in/out */}
               <select
                 value={label}
                 onChange={(e) => setLabel(e.target.value)}
@@ -173,9 +191,8 @@ export default function App() {
           {events.map((ev) => (
             <div key={ev._id} className="event-item">
               <strong>
-                  {ev.type} {ev.label ? `(${ev.label})` : ""}
+                {ev.type} {ev.label ? `(${ev.label})` : ""}
               </strong>
-              {ev.label ? <span> ({ev.label})</span> : null}
               <br />
               <small>{new Date(ev.timestamp).toLocaleString()}</small>
             </div>
