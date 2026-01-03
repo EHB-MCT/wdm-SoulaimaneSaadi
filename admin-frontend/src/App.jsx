@@ -6,7 +6,7 @@ export default function App() {
   const [password, setPassword] = useState("");
   const [admin, setAdmin] = useState(null);
 
-  // ✅ label selected in UI
+  //  label picker
   const [label, setLabel] = useState("mama");
 
   const [children, setChildren] = useState([]);
@@ -45,22 +45,13 @@ export default function App() {
     setEvents(data);
   }
 
-  // ✅ generic create event (check-in / check-out / punish / etc.)
+  //  generic event creator
   async function createEvent(childId, type) {
-    const res = await fetch("http://localhost:3000/events", {
+    await fetch("http://localhost:3000/events", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        childId,
-        type,
-        label
-      })
+      body: JSON.stringify({ childId, type, label })
     });
-
-    if (!res.ok) {
-      alert("Event failed");
-      return;
-    }
 
     loadChildren();
     loadEvents(childId);
@@ -78,7 +69,6 @@ export default function App() {
     if (admin) loadEvents(selectedChildId);
   }, [selectedChildId, admin]);
 
-  // 🔐 LOGIN SCREEN
   if (!admin) {
     return (
       <div className="login-container">
@@ -102,35 +92,9 @@ export default function App() {
     );
   }
 
-  // 📊 DASHBOARD
   return (
     <div className="dashboard">
       <h1>Admin Dashboard</h1>
-
-      {/* ✅ LABEL PICKER */}
-      <div style={{ marginBottom: 16 }}>
-        <strong>Label:</strong>{" "}
-        <button
-          onClick={() => setLabel("mama")}
-          style={{
-            marginLeft: 8,
-            fontWeight: label === "mama" ? "bold" : "normal"
-          }}
-        >
-          mama
-        </button>
-        <button
-          onClick={() => setLabel("papa")}
-          style={{
-            marginLeft: 8,
-            fontWeight: label === "papa" ? "bold" : "normal"
-          }}
-        >
-          papa
-        </button>
-
-        <span style={{ marginLeft: 12 }}>Selected: {label}</span>
-      </div>
 
       <div className="dashboard-content">
         <div className="children-panel">
@@ -150,7 +114,20 @@ export default function App() {
               <p>Status: {c.status}</p>
               <p>Restricted: {String(c.isRestricted)}</p>
 
-              {/* ✅ CHECK IN / CHECK OUT */}
+              /* label + check in/out */
+              <select
+                value={label}
+                onChange={(e) => setLabel(e.target.value)}
+                style={{ marginTop: 8 }}
+              >
+                <option value="mama">mama</option>
+                <option value="papa">papa</option>
+                <option value="broer">broer</option>
+                <option value="zus">zus</option>
+                <option value="vriend">vriend</option>
+                <option value="familie">familie</option>
+              </select>
+
               <div style={{ display: "flex", gap: 8, marginTop: 10 }}>
                 <button
                   onClick={(e) => {
@@ -158,7 +135,7 @@ export default function App() {
                     createEvent(c._id, "CHECK_IN");
                   }}
                 >
-                  Check In
+                  Check-in
                 </button>
 
                 <button
@@ -167,11 +144,10 @@ export default function App() {
                     createEvent(c._id, "CHECK_OUT");
                   }}
                 >
-                  Check Out
+                  Check-out
                 </button>
               </div>
 
-              {/* ✅ PUNISH */}
               <button
                 style={{ marginTop: 10 }}
                 onClick={(e) => {
@@ -196,8 +172,8 @@ export default function App() {
 
           {events.map((ev) => (
             <div key={ev._id} className="event-item">
-              <strong>{ev.type}</strong>{" "}
-              {ev.label && <em>({ev.label})</em>}
+              <strong>{ev.type}</strong>
+              {ev.label ? <span> ({ev.label})</span> : null}
               <br />
               <small>{new Date(ev.timestamp).toLocaleString()}</small>
             </div>
