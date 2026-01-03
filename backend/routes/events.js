@@ -16,8 +16,21 @@ router.post("/", async (req, res) => {
 
     await event.save();
 
-    // influence simple
-    if (req.body.type == "PUNISH") {
+    //  update child status 
+    if (req.body.type === "CHECK_IN") {
+      await Child.findByIdAndUpdate(req.body.childId, {
+        status: "present"
+      });
+    }
+
+    if (req.body.type === "CHECK_OUT") {
+      await Child.findByIdAndUpdate(req.body.childId, {
+        status: "absent"
+      });
+    }
+
+    // punish 
+    if (req.body.type === "PUNISH") {
       const punishCount = await Event.countDocuments({
         childId: req.body.childId,
         type: "PUNISH"
