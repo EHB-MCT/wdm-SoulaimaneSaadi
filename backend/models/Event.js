@@ -1,19 +1,10 @@
 import mongoose from "mongoose";
 
 const EventSchema = new mongoose.Schema({
-  childId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Child",
-    required: true
-  },
-  type: {
-    type: String,
-    required: true
-  },
-  timestamp: {
-    type: Date,
-    default: Date.now
-  }
+  childId: mongoose.Schema.Types.ObjectId,
+  type: String,
+  timestamp: Date,
+  label: String
 });
 
 export default mongoose.model("Event", EventSchema);
