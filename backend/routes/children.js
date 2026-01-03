@@ -29,18 +29,25 @@ router.get("/", async (req, res) => {
   }
 });
 
+//  list of children 
+router.get("/public", async (req, res) => {
+  try {
+    const children = await Child.find({}, "name status currentItem");
+    res.json(children);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // Get one child
+
 router.get("/:id", async (req, res) => {
   try {
     const child = await Child.findById(req.params.id);
-
-    if (!child) {
-      return res.status(404).json({ error: "Child not found" });
-    }
-
+    if (!child) return res.status(404).json({ message: "Child not found" });
     res.json(child);
   } catch (err) {
-    res.status(500).json({ error: "server error" });
+    res.status(500).json({ error: err.message });
   }
 });
 

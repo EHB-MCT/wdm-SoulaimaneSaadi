@@ -108,7 +108,7 @@ export default function App() {
         <div className="children-panel">
           <h2>Children</h2>
 
-          {/* ✅ checkbox filter */}
+          {/* checkbox filter */}
           <label style={{ display: "block", marginBottom: 10 }}>
             <input
               type="checkbox"
