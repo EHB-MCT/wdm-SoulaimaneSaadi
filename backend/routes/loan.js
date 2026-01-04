@@ -20,27 +20,9 @@ router.post("/take", async (req, res) => {
     
     if (!child) return res.status(404).json({ message: "Child not found" });
 
-    console.log(`DEBUG: Child ${child.name} has currentItem: "${child.currentItem}"`);
-
-    // check restrictedUntil ...
-    if (child.restrictedUntil && new Date(child.restrictedUntil) > new Date()) {
-      if (!child.isRestricted) {
-        child.isRestricted = true;
-        await child.save();
-      }
-    } else {
-      if (child.isRestricted || child.restrictedUntil) {
-        child.isRestricted = false;
-        child.restrictedUntil = null;
-        await child.save();
-      }
-    }
-
     if (child.isRestricted || child.status === 'PUNISHED') {
       return res.status(403).json({ message: child.status === 'PUNISHED' ? "Cannot take items while punished" : "Restricted today" });
     }
-
-    console.log(`DEBUG: currentItem check: "${child.currentItem}", typeof: ${typeof child.currentItem}, length: ${child.currentItem?.length}`);
 
     if (child.currentItem) {
       return res.status(400).json({ message: "Child already has an item" });
