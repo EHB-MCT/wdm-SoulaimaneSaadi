@@ -130,6 +130,21 @@ export default function App() {
     ? children.filter((child) => child.status === "present")
     : children;
 
+  // ÉTAPE 14 — Stats par enfant (pour tri)
+  const statsByChildId = {};
+
+  for (const event of events) {
+    const childId = (event.childId?._id || event.childId || "").toString();
+    if (!childId) continue;
+
+    if (!statsByChildId[childId]) {
+      statsByChildId[childId] = { punish: 0, loans: 0 };
+    }
+
+    if (event.type === "PUNISH_END") statsByChildId[childId].punish += 1;
+    if (event.type === "LOAN_START") statsByChildId[childId].loans += 1;
+  }
+
   const selectedChild = children.find(child => child._id === selectedChildId);
 
   if (!admin) {

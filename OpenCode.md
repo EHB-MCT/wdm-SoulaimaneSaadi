@@ -542,3 +542,102 @@ const [sortBy, setSortBy] = useState("name");
 
 ### Reason:
 Prépare l'infrastructure pour un système de filtrage avancé avec cases à cocher (Present only, Restricted only, Has item only) et menu déroulant de tri (Name / Punishments / Loans) sans nécessiter de routes backend supplémentaires.
+
+## Fix 17: ÉTAPE 14 - Stats Per Child Calculation
+**Date:** 2026-01-04  
+**File:** admin-frontend/src/App.jsx  
+**Lines:** 136-144
+
+### Ta demande:
+"Stap 14 — Maak een 'stats per child' uit events (zodat we kunnen sorteren)" - Tu voulais que je crée des statistiques par enfant pour pouvoir trier la liste.
+
+### Solution:
+Ajouté le calcul des statistiques par enfant juste avant le return principal:
+
+```javascript
+// ÉTAPE 14 - Stats per child calculation
+const statsByChildId = {};
+
+for (const event of events) {
+  const childId = event.childId;
+  if (!statsByChildId[childId]) {
+    statsByChildId[childId] = { punishCount: 0, loanCount: 0 };
+  }
+
+  if (event.type === "PUNISH_END") statsByChildId[childId].punishCount += 1;
+  if (event.type === "LOAN_START") statsByChildId[childId].loanCount += 1;
+}
+```
+
+### Statistiques calculées:
+- **statsByChildId** - Objet avec les stats par childId
+- **punishCount** - Nombre de PUNISH_END par enfant
+- **loanCount** - Nombre de LOAN_START par enfant
+
+### Logique:
+- Parcourt tous les events
+- Crée un objet de stats pour chaque childId
+- Incrémente les compteurs selon le type d'event
+- Structure: `{ "childId1": { punishCount: 3, loanCount: 5 }, ... }`
+
+### Positionnement:
+- Juste avant la déclaration de selectedChild
+- Après tous les calculs de statistiques existants
+- Avant le return principal du composant
+
+### Reason:
+Prépare les données nécessaires pour le tri de la liste des enfants par nombre de punitions ou d'emprunts, en utilisant uniquement les events déjà chargés sans requêtes backend supplémentaires.
+
+## Fix 18: ÉTAPE 14 - Safe Stats Calculation (Security Fixes)
+**Date:** 2026-01-04  
+**File:** admin-frontend/src/App.jsx  
+**Lines:** 134-146
+
+### Ta demande:
+"ça marche, MAIS je te fais 2 mini fixes pour que ce soit vraiment clean et safe" - Tu voulais que je corrige deux problèmes de sécurité dans le calcul des stats.
+
+### Solution:
+Remplacé le code par une version sécurisée et robuste:
+
+```javascript
+// ÉTAPE 14 — Stats par enfant (pour tri)
+const statsByChildId = {};
+
+for (const event of events) {
+  const childId = (event.childId?._id || event.childId || "").toString();
+  if (!childId) continue;
+
+  if (!statsByChildId[childId]) {
+    statsByChildId[childId] = { punish: 0, loans: 0 };
+  }
+
+  if (event.type === "PUNISH_END") statsByChildId[childId].punish += 1;
+  if (event.type === "LOAN_START") statsByChildId[childId].loans += 1;
+}
+```
+
+### Corrections de sécurité appliquées:
+1. **Guard contre undefined childId**:
+   - `event.childId?._id || event.childId || ""` 
+   - Évite `statsByChildId[undefined]`
+
+2. **Conversion string robuste**:
+   - `.toString()` pour gérer les ObjectId MongoDB
+   - Gère les cas où childId est un objet
+
+3. **Early continue**:
+   - `if (!childId) continue;` 
+   - Saute les events sans childId valide
+
+4. **Noms cohérents**:
+   - `punish` au lieu de `punishCount`
+   - `loans` au lieu de `loanCount`
+
+### Avantages:
+- **100% safe** contre les undefined/null
+- **Compatible MongoDB** avec ObjectId
+- **Performance** avec early continue
+- **Prêt pour étape 15** (tri)
+
+### Reason:
+Évite les bugs étranges avec les données MongoDB, protège contre les events corrompus, et assure une base solide pour le système de tri.
