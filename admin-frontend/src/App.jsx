@@ -60,8 +60,28 @@ export default function App() {
     await loadEvents(childId);
   }
 
-  async function punishChild(childId) {
-    await createEvent(childId, "PUNISH");
+  // Punish start function
+  async function punishStart(childId) {
+    await fetch("http://localhost:3000/events", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ childId: childId, type: "PUNISH_START", label })
+    });
+
+    await loadChildren();
+    await loadEvents(childId);
+  }
+
+  // Punish end function
+  async function punishEnd(childId) {
+    await fetch("http://localhost:3000/events", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ childId: childId, type: "PUNISH_END", label })
+    });
+
+    await loadChildren();
+    await loadEvents(childId);
   }
 
   useEffect(() => {
@@ -130,8 +150,7 @@ export default function App() {
               <strong>{child.name}</strong>
               <p>Status: {child.status}</p>
               <p>Restricted: {String(child.isRestricted)}</p>
-
-              {/* ✅ ÉTAPE 8 */}
+              <p>Restricted until: {child.restrictedUntil ? new Date(child.restrictedUntil).toLocaleString() : "no"}</p>
               <p>Item: {child.currentItem ? child.currentItem : "none"}</p>
 
               {/* label + check in/out */}
@@ -168,15 +187,26 @@ export default function App() {
                 </button>
               </div>
 
-              <button
-                style={{ marginTop: 10 }}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  punishChild(child._id);
-                }}
-              >
-                Punish
-              </button>
+              {/* Punish buttons */}
+              <div style={{ display: "flex", gap: 8, marginTop: 10 }}>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    punishStart(child._id);
+                  }}
+                >
+                  Punish start
+                </button>
+
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    punishEnd(child._id);
+                  }}
+                >
+                  Punish end
+                </button>
+              </div>
             </div>
           ))}
         </div>
@@ -194,6 +224,7 @@ export default function App() {
             <div key={event._id} className="event-item">
               <strong>
                 {event.type} {event.label ? `(${event.label})` : ""}
+                {event.durationMinutes && ` - ${event.durationMinutes} min`}
               </strong>
               <br />
               <small>{new Date(event.timestamp).toLocaleString()}</small>

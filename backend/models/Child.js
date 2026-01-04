@@ -6,7 +6,8 @@ const ChildSchema = new mongoose.Schema({
   password: String,
   status: String,
   isRestricted: Boolean,
-  currentItem: String
+  currentItem: String,
+  restrictedUntil: Date
 });
 
 export default mongoose.model("Child", ChildSchema);

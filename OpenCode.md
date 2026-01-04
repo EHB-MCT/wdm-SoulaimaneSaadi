@@ -112,3 +112,69 @@ Added restricted until date display:
 
 ### Reason:
 Shows child the exact date/time when restriction ends, improving user experience and transparency.
+
+## Fix 6: Admin Frontend RestrictedUntil Display
+**Date:** 2026-01-03  
+**File:** backend/models/Child.js & admin-frontend/src/App.jsx  
+**Lines:** Child.js:10, App.jsx:33
+
+### Problem:
+Admin couldn't see restriction end date and Child model was missing restrictedUntil field.
+
+### Solution:
+Added restrictedUntil field to Child model and display in admin frontend:
+
+```javascript
+// Child.js - Added field:
+restrictedUntil: Date
+
+// App.jsx - Added display:
+<p>Restricted until: {child.restrictedUntil ? new Date(child.restrictedUntil).toLocaleString() : "no"}</p>
+```
+
+### Reason:
+Admin can now see exactly when child restrictions end, and the backend properly stores restriction dates in the database.
+
+## Fix 7: Admin Frontend ÉTAPE 9 - PUNISH_START/END Implementation
+**Date:** 2026-01-04  
+**File:** admin-frontend/src/App.jsx  
+**Complete file replacement**
+
+### Problem:
+Admin frontend was using old "PUNISH" system and needed to align with new backend PUNISH_START/PUNISH_END system.
+
+### Solution:
+Complete admin frontend overhaul with:
+
+```javascript
+// New punish functions:
+async function punishStart(childId) {
+  await fetch("http://localhost:3000/events", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ childId: childId, type: "PUNISH_START", label })
+  });
+  await loadChildren();
+  await loadEvents(childId);
+}
+
+async function punishEnd(childId) {
+  await fetch("http://localhost:3000/events", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ childId: childId, type: "PUNISH_END", label })
+  });
+  await loadChildren();
+  await loadEvents(childId);
+}
+
+// UI Changes:
+- Replaced single "Punish" button with "Punish start" and "Punish end" buttons
+- Added restrictedUntil display in child cards
+- Added durationMinutes display in events panel
+- Professional variable naming (child, event)
+- All buttons have e.stopPropagation()
+```
+
+### Reason:
+Aligns admin frontend with new backend punishment system, provides better UX with separate start/end controls, and displays restriction dates clearly.
