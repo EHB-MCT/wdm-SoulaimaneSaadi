@@ -1,4 +1,5 @@
 import express from "express";
+import { ObjectId } from "mongodb";
 import Child from "../models/Child.js";
 import Item from "../models/Item.js";
 import Event from "../models/Event.js";
@@ -10,7 +11,7 @@ router.post("/take", async (req, res) => {
   try {
     const { childId, itemName } = req.body;
 
-    const child = await Child.findById(childId);
+    const child = await Child.findById(new ObjectId(childId));
     if (!child) return res.status(404).json({ message: "Child not found" });
 
     // check restrictedUntil ...
@@ -67,7 +68,7 @@ router.post("/return", async (req, res) => {
   try {
     const { childId } = req.body;
 
-    const child = await Child.findById(childId);
+    const child = await Child.findById(new ObjectId(childId));
     if (!child) return res.status(404).json({ message: "Child not found" });
 
     if (!child.currentItem) {
