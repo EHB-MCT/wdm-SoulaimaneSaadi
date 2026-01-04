@@ -245,11 +245,32 @@ export default function App() {
           <h2>Events</h2>
 
           {selectedChild && (
-            <div className="child-profile">
-              <p><strong>Name:</strong> {selectedChild.name}</p>
-              <p><strong>Email:</strong> {selectedChild.email}</p>
-              <p><strong>Current item:</strong> {selectedChild.currentItem || "none"}</p>
-              <p><strong>Restricted:</strong> {selectedChild.isRestricted ? "Yes" : "No"}</p>
+            <div>
+              <div className="child-profile">
+                <p><strong>Name:</strong> {selectedChild.name}</p>
+                <p><strong>Email:</strong> {selectedChild.email}</p>
+                <p><strong>Current item:</strong> {selectedChild.currentItem || "none"}</p>
+                <p><strong>Restricted:</strong> {selectedChild.isRestricted ? "Yes" : "No"}</p>
+              </div>
+
+              <div className="child-stats">
+                <h3>Stats</h3>
+                <p><strong>Punishments:</strong> {totalPunishments}</p>
+                <p><strong>Punish time total:</strong> {totalPunishmentMinutes} min</p>
+
+                <p><strong>Loans:</strong> {totalLoans}</p>
+                <p><strong>Loan items:</strong> {borrowedItems.join(", ") || "none"}</p>
+
+                <p><strong>Dropped by:</strong></p>
+                {Object.keys(dropOffCounts).map((label) => (
+                  <p key={label}>{label}: {dropOffCounts[label]}</p>
+                ))}
+
+                <p><strong>Picked up by:</strong></p>
+                {Object.keys(pickUpCounts).map((label) => (
+                  <p key={label}>{label}: {pickUpCounts[label]}</p>
+                ))}
+              </div>
             </div>
           )}
 

@@ -450,3 +450,62 @@ const pickUpCounts = countEventsByLabel(checkOutEvents);
 
 ### Reason:
 Noms de variables explicites et auto-documentés qui suivent les conventions JavaScript standard pour une meilleure lisibilité et maintenabilité.
+
+## Fix 14: ÉTAPE 12 - Statistics Display Implementation
+**Date:** 2026-01-04  
+**File:** admin-frontend/src/App.jsx  
+**Lines:** 135-160
+
+### Ta demande:
+"ÉTAPE 12 — Afficher ces stats dans l'admin" - Tu voulais que j'affiche les statistiques calculées dans l'interface admin.
+
+### Solution:
+Ajouté la section de statistiques sous le profil de l'enfant:
+
+```javascript
+{selectedChild && (
+  <div>
+    <div className="child-profile">
+      <p><strong>Name:</strong> {selectedChild.name}</p>
+      <p><strong>Email:</strong> {selectedChild.email}</p>
+      <p><strong>Current item:</strong> {selectedChild.currentItem || "none"}</p>
+      <p><strong>Restricted:</strong> {selectedChild.isRestricted ? "Yes" : "No"}</p>
+    </div>
+
+    <div className="child-stats">
+      <h3>Stats</h3>
+      <p><strong>Punishments:</strong> {totalPunishments}</p>
+      <p><strong>Punish time total:</strong> {totalPunishmentMinutes} min</p>
+
+      <p><strong>Loans:</strong> {totalLoans}</p>
+      <p><strong>Loan items:</strong> {borrowedItems.join(", ") || "none"}</p>
+
+      <p><strong>Dropped by:</strong></p>
+      {Object.keys(dropOffCounts).map((label) => (
+        <p key={label}>{label}: {dropOffCounts[label]}</p>
+      ))}
+
+      <p><strong>Picked up by:</strong></p>
+      {Object.keys(pickUpCounts).map((label) => (
+        <p key={label}>{label}: {pickUpCounts[label]}</p>
+      ))}
+    </div>
+  </div>
+)}
+```
+
+### Fonctionnalités affichées:
+- **totalPunishments** - Nombre de punitions
+- **totalPunishmentMinutes** - Temps total de punition
+- **totalLoans** - Nombre d'emprunts
+- **borrowedItems** - Liste des items empruntés
+- **dropOffCounts** - Qui a déposé les objets
+- **pickUpCounts** - Qui a récupéré les objets
+
+### Structure:
+- Séparation du profil et des stats avec des divs distincts
+- Classes CSS pour style futur (`child-profile`, `child-stats`)
+- Keys uniques pour les maps React
+
+### Reason:
+Dashboard admin complet avec profil enfant détaillé et statistiques comportementales pour un suivi efficace.
