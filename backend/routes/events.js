@@ -11,7 +11,8 @@ router.post("/", async (req, res) => {
       childId: req.body.childId,
       type: req.body.type,
       timestamp: new Date(),
-      label: req.body.label
+      label: req.body.label,
+      durationMinutes: req.body.durationMinutes
     });
 
     await event.save();

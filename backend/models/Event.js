@@ -4,7 +4,8 @@ const EventSchema = new mongoose.Schema({
   childId: mongoose.Schema.Types.ObjectId,
   type: String,
   timestamp: Date,
-  label: String
+  label: String,
+  durationMinutes: Number
 });
 
 export default mongoose.model("Event", EventSchema);
