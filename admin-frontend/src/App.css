@@ -1,0 +1,72 @@
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+}
+
+ /*LOGIN PAGE */ 
+.login-container {
+  padding: 40px;
+}
+
+.login-container input {
+  display: block;
+  margin-bottom: 10px;
+  padding: 6px;
+  width: 200px;
+}
+
+.login-container button {
+  padding: 6px 12px;
+}
+
+ /* DASHBOARD */ 
+ .dashboard {
+  padding: 20px;
+}
+
+.dashboard-content {
+  display: flex;
+  gap: 30px;
+  margin-top: 20px;
+}
+
+ /* CHILDREN PANEL */ 
+ .children-panel {
+  width: 40%;
+}
+
+.child-card {
+  border: 1px solid #ccc;
+  padding: 10px;
+  margin-bottom: 10px;
+  cursor: pointer;
+}
+
+.child-card.selected {
+  background-color: #f2f2f2;
+}
+
+.child-card button {
+  margin-top: 8px;
+}
+
+ /* EVENTS PANEL */ 
+.events-panel {
+  width: 60%;
+}
+
+.event-item {
+  border-bottom: 1px solid #dddddd;
+  padding: 8px 0;
+}
+
+.event-item small {
+  display: block;
+  font-size: 12px;
+  color: #666;
+}
+
+label {
+  display: block;
+  margin: 10px 0;
+}
