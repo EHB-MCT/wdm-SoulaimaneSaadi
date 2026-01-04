@@ -5,7 +5,9 @@
   "main": "backend.js",
   "scripts": {
     "start": "node backend.js",
-    "dev": "node backend.js"
+    "dev": "node backend.js",
+    "seed": "node scripts/seed.js",
+    "start:seed": "node scripts/seed.js && node backend.js"
   },
   "dependencies": {
     "cors": "^2.8.5",

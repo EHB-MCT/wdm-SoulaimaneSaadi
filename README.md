@@ -38,6 +38,57 @@ cp child-frontend/.env.template child-frontend/.env
 docker compose up --build
 ```
 
+## Seed Data
+
+The application automatically populates the database with initial data on first startup. This ensures the system is ready for testing immediately after deployment.
+
+### What's Included
+
+**👤 Admin Account**
+- Email: `admin@wdm.com`
+- Password: `password`
+- Created automatically on first startup
+
+**📦 Sample Items**
+- Basketball (available)
+- Football (available) 
+- Rope (available)
+- Table Tennis Paddle (available)
+- Jumping Rope (available)
+- Baseball Bat (not available)
+- Tennis Ball (available)
+
+**👶 Sample Children**
+- **Alice Johnson** (`alice@test.com` / `child123`) - Status: PRESENT
+- **Bob Smith** (`bob@test.com` / `child123`) - Status: CHECKED_OUT, has Basketball
+- **Charlie Brown** (`charlie@test.com` / `child123`) - Status: PRESENT, restricted
+- **Diana Wilson** (`diana@test.com` / `child123`) - Status: PRESENT, has Football
+- **Ethan Davis** (`ethan@test.com` / `child123`) - Status: PUNISHED
+
+**📅 Sample Events**
+Each child gets sample events including:
+- Check-in/check-out records
+- Punishment start/end with durations
+- Historical tracking for testing filters and statistics
+
+### How it Works
+
+- **Idempotent**: Seed only runs if data doesn't exist
+- **Automatic**: Runs on every backend startup
+- **Safe**: Won't duplicate data on restart
+- **Persistent**: Data survives container restarts via Docker volumes
+
+### Reset Database
+
+To completely reset and reseed:
+
+```bash
+docker compose down -v
+docker compose up --build
+```
+
+⚠️ **Warning**: This removes ALL existing data including any changes made through the interface.
+
 ## Access URLs
 
 - **Admin frontend**: http://localhost:5173/

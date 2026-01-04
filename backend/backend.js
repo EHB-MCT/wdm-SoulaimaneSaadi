@@ -10,6 +10,7 @@ import eventsRoutes from "./routes/events.js";
 import adminAuthRoutes from "./routes/adminAuth.js";
 import itemRoutes from "./routes/items.js";
 import loanRoutes from "./routes/loan.js";
+import seedData from "./scripts/seed.js";
 
 
 dotenv.config();
@@ -40,8 +41,12 @@ let db;
 
 // Connect to MongoDB for Mongoose (models)
 mongoose.connect(process.env.MONGO_URI)
-  .then(() => {
+  .then(async () => {
     console.log("Mongoose connected");
+    
+    // Run seeding on first connection
+    console.log("🌱 Checking if database needs seeding...");
+    await seedData(false);
   })
   .catch((err) => {
     console.error("Mongoose error:", err);
