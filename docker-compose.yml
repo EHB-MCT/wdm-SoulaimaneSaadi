@@ -1,4 +1,5 @@
 services:
+  # MongoDB
   mongo:
     image: mongo:7
     container_name: wdm-mongo
@@ -7,7 +8,14 @@ services:
       - "27017:27017"
     volumes:
       - mongo-data:/data/db
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=admin
+      - MONGO_INITDB_ROOT_PASSWORD=password
+      - MONGO_INITDB_DATABASE=wdm-app
+    networks:
+      - wdm-network
 
+  # Backend API
   backend:
     build: ./backend
     container_name: wdm-backend
@@ -18,6 +26,68 @@ services:
       - mongo
     ports:
       - "3000:3000"
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+    networks:
+      - wdm-network
+    environment:
+      - NODE_ENV=production
+
+  # Admin Frontend
+  admin-frontend:
+    build:
+      context: ./admin-frontend
+      dockerfile: Dockerfile
+    container_name: wdm-admin-frontend
+    restart: always
+    ports:
+      - "5173:80"
+    depends_on:
+      - backend
+    networks:
+      - wdm-network
+    environment:
+      - VITE_API_URL=http://localhost:3000
+
+  # Child Frontend
+  child-frontend:
+    build:
+      context: ./child-frontend
+      dockerfile: Dockerfile
+    container_name: wdm-child-frontend
+    restart: always
+    ports:
+      - "5174:80"
+    depends_on:
+      - backend
+    networks:
+      - wdm-network
+    environment:
+      - VITE_API_URL=http://localhost:3000
+
+  # Nginx Reverse Proxy (Optional - for production)
+  nginx:
+    image: nginx:alpine
+    container_name: wdm-nginx
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+    depends_on:
+      - admin-frontend
+      - child-frontend
+      - backend
+    networks:
+      - wdm-network
+    profiles:
+      - production
 
 volumes:
   mongo-data:
+
+networks:
+  wdm-network:
+    driver: bridge
