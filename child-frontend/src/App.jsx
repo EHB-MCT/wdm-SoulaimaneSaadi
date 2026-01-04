@@ -5,7 +5,7 @@ export default function App() {
   const [password, setPassword] = useState("");
   const [child, setChild] = useState(null);
 
-  // public children list 
+  // public children list
   const [publicChildren, setPublicChildren] = useState([]);
 
   async function login() {
@@ -48,6 +48,14 @@ export default function App() {
     setPublicChildren(data);
   }
 
+  async function refreshChild() {
+    const res = await fetch(
+      "http://localhost:3000/children/" + child._id
+    );
+    const data = await res.json();
+    setChild(data);
+  }
+
   useEffect(() => {
     if (child) loadPublicChildren();
   }, [child]);
@@ -84,9 +92,11 @@ export default function App() {
     <div style={{ padding: 20 }}>
       <h1>Welcome {child.name}</h1>
 
-      /* Take ball */
+      <p>Your item: {child.currentItem ? child.currentItem : "none"}</p>
+
+      {/* TAKE */}
       <button
-        disabled={child.isRestricted}
+        disabled={child.isRestricted || !!child.currentItem}
         onClick={async () => {
           const res = await fetch("http://localhost:3000/loan/take", {
             method: "POST",
@@ -98,21 +108,51 @@ export default function App() {
           });
 
           if (res.ok) {
-            alert("Ball taken ✅");
-            loadPublicChildren();
+            await refreshChild();
+            await loadPublicChildren();
+            alert("You took the ball ");
           } else {
-            alert("Error");
+            const err = await res.json();
+            alert(err.message || "Error");
           }
         }}
       >
         Take the ball
       </button>
 
+      /* RETURN */
+      <button
+        style={{ marginLeft: 10 }}
+        disabled={!child.currentItem}
+        onClick={async () => {
+          const res = await fetch("http://localhost:3000/loan/return", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              childId: child._id
+            })
+          });
+
+          if (res.ok) {
+            await refreshChild();
+            await loadPublicChildren();
+            alert("Returned");
+          } else {
+            const err = await res.json();
+            alert(err.message || "Error");
+          }
+        }}
+      >
+        Return item
+      </button>
+
       {child.isRestricted && (
-        <p>You need to be more kind buddy.</p>
+        <p style={{ marginTop: 10 }}>
+          You need to be more kind buddy 
+        </p>
       )}
 
-      /* ÉTAPE 12 — Other kids */
+      /* Other kids */
       <h2 style={{ marginTop: 30 }}>Other kids</h2>
 
       {publicChildren.map((publicChild) => (
