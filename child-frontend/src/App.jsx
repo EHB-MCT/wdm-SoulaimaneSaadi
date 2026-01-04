@@ -5,7 +5,7 @@ export default function App() {
   const [password, setPassword] = useState("");
   const [child, setChild] = useState(null);
 
-  // public children list
+  // public children list 
   const [publicChildren, setPublicChildren] = useState([]);
 
   async function login() {
@@ -42,14 +42,12 @@ export default function App() {
     }
   }
 
-  // ✅ load public children
   async function loadPublicChildren() {
     const res = await fetch("http://localhost:3000/children/public");
     const data = await res.json();
     setPublicChildren(data);
   }
 
-  // ✅ load after login
   useEffect(() => {
     if (child) loadPublicChildren();
   }, [child]);
@@ -86,7 +84,7 @@ export default function App() {
     <div style={{ padding: 20 }}>
       <h1>Welcome {child.name}</h1>
 
-      /* TAKE BALL */
+      /* Take ball */
       <button
         disabled={child.isRestricted}
         onClick={async () => {
@@ -101,7 +99,7 @@ export default function App() {
 
           if (res.ok) {
             alert("Ball taken ✅");
-            loadPublicChildren(); // refresh list
+            loadPublicChildren();
           } else {
             alert("Error");
           }
@@ -114,13 +112,13 @@ export default function App() {
         <p>You need to be more kind buddy.</p>
       )}
 
-      /* Public children list */
-      <h2 style={{ marginTop: 30 }}>Who is here today</h2>
+      /* ÉTAPE 12 — Other kids */
+      <h2 style={{ marginTop: 30 }}>Other kids</h2>
 
       {publicChildren.map((publicChild) => (
         <div key={publicChild._id}>
-          <strong>{publicChild.name}</strong> — {publicChild.status} —{" "}
-          {publicChild.currentItem || "no item"}
+          <strong>{publicChild.name}</strong> —{" "}
+          {publicChild.currentItem ? publicChild.currentItem : "nothing"}
         </div>
       ))}
     </div>
