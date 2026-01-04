@@ -12,6 +12,12 @@ export default function App() {
   // filter present only
   const [showPresentOnly, setShowPresentOnly] = useState(false);
 
+  // Filter states
+  const [filterPresent, setFilterPresent] = useState(false);
+  const [filterRestricted, setFilterRestricted] = useState(false);
+  const [filterHasItem, setFilterHasItem] = useState(false);
+  const [sortBy, setSortBy] = useState("name");
+
   const [children, setChildren] = useState([]);
   const [selectedChildId, setSelectedChildId] = useState("");
   const [events, setEvents] = useState([]);

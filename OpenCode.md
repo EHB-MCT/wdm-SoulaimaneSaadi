@@ -509,3 +509,36 @@ Ajouté la section de statistiques sous le profil de l'enfant:
 
 ### Reason:
 Dashboard admin complet avec profil enfant détaillé et statistiques comportementales pour un suivi efficace.
+
+## Fix 16: ÉTAPE 13 - Filter States Implementation
+**Date:** 2026-01-04  
+**File:** admin-frontend/src/App.jsx  
+**Lines:** 15-19
+
+### Ta demande:
+"Stap 13 — Voeg states toe (bovenaan in App.jsx)" - Tu voulais que j'ajoute les états pour filtrer et trier la liste des enfants dans l'admin dashboard.
+
+### Solution:
+Ajouté 4 nouveaux états pour le système de filtrage:
+
+```javascript
+// ÉTAPE 13 - Filter states
+const [filterPresent, setFilterPresent] = useState(false);
+const [filterRestricted, setFilterRestricted] = useState(false);
+const [filterHasItem, setFilterHasItem] = useState(false);
+const [sortBy, setSortBy] = useState("name");
+```
+
+### Nouveaux états ajoutés:
+- **filterPresent** - Pour filtrer les enfants présents
+- **filterRestricted** - Pour filtrer les enfants restreints
+- **filterHasItem** - Pour filtrer les enfants ayant un item
+- **sortBy** - Pour trier la liste (par défaut "name")
+
+### Positionnement:
+- Ajouté après l'état existant `showPresentOnly`
+- Juste avant les états de données principales (children, selectedChildId, events)
+- Avec commentaire clair pour l'identification
+
+### Reason:
+Prépare l'infrastructure pour un système de filtrage avancé avec cases à cocher (Present only, Restricted only, Has item only) et menu déroulant de tri (Name / Punishments / Loans) sans nécessiter de routes backend supplémentaires.
