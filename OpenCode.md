@@ -347,3 +347,106 @@ Remplacé le check simple par un check null explicite:
 
 ### Reason:
 `!= null` vérifie explicitement `null` et `undefined` mais permet `0` comme valeur valide, évitant que les durées de 0 minutes ne soient masquées.
+
+## Fix 12: ÉTAPE 11 - Statistics Calculations Implementation
+**Date:** 2026-01-04  
+**File:** admin-frontend/src/App.jsx  
+**Lines:** 95-119
+
+### Ta demande:
+"Ce que tu dois faire maintenant (ÉTAPE 11)" - Tu voulais que j'implémente les calculs de statistiques pour l'admin frontend.
+
+### Solution:
+Ajouté les calculs de statistiques après les useEffect et avant le return principal:
+
+```javascript
+/* 🚀 ÉTAPE 11 — Statistics Calculations */
+const punishEndEvents = events.filter((e) => e.type === "PUNISH_END");
+const punishTotal = punishEndEvents.length;
+
+const punishMinutesTotal = punishEndEvents.reduce((sum, e) => {
+  return sum + (e.durationMinutes || 0);
+}, 0);
+
+const loanStartEvents = events.filter((e) => e.type === "LOAN_START");
+const loanTotal = loanStartEvents.length;
+
+const loanItems = loanStartEvents.map((e) => e.label).filter(Boolean);
+
+const checkInEvents = events.filter((e) => e.type === "CHECK_IN");
+const checkOutEvents = events.filter((e) => e.type === "CHECK_OUT");
+
+function countLabels(list) {
+  const result = {};
+  for (const ev of list) {
+    const key = ev.label || "unknown";
+    result[key] = (result[key] || 0) + 1;
+  }
+  return result;
+}
+
+const droppedByCounts = countLabels(checkInEvents);
+const pickedUpByCounts = countLabels(checkOutEvents);
+```
+
+### Variables créées:
+- **punishTotal** - nombre total de punitions
+- **punishMinutesTotal** - durée totale des punitions en minutes
+- **loanTotal** - nombre total d'emprunts
+- **loanItems** - liste des items empruntés
+- **droppedByCounts** - comptage des dépôts par label
+- **pickedUpByCounts** - comptage des retraits par label
+
+### Reason:
+Prépare les données statistiques pour un futur dashboard d'analytics, avec des calculs optimisés et des noms de variables professionnels.
+
+## Fix 13: ÉTAPE 11 - Professional Variable Names
+**Date:** 2026-01-04  
+**File:** admin-frontend/src/App.jsx  
+**Lines:** 96-121
+
+### Ta demande:
+"use normal names of variables please like you did" - Tu voulais que j'utilise des noms de variables plus professionnels et normaux.
+
+### Solution:
+Renommé toutes les variables pour plus de clarté:
+
+```javascript
+// Avant (noms courts/abréviés):
+const punishEndEvents = events.filter((e) => e.type === "PUNISH_END");
+const punishTotal = punishEndEvents.length;
+const punishMinutesTotal = punishEndEvents.reduce((sum, e) => {
+  return sum + (e.durationMinutes || 0);
+}, 0);
+const loanStartEvents = events.filter((e) => e.type === "LOAN_START");
+const loanTotal = loanStartEvents.length;
+const loanItems = loanStartEvents.map((e) => e.label).filter(Boolean);
+const droppedByCounts = countLabels(checkInEvents);
+const pickedUpByCounts = countLabels(checkOutEvents);
+
+// Après (noms professionnels):
+const punishmentEndEvents = events.filter((event) => event.type === "PUNISH_END");
+const totalPunishments = punishmentEndEvents.length;
+const totalPunishmentMinutes = punishmentEndEvents.reduce((sum, event) => {
+  return sum + (event.durationMinutes || 0);
+}, 0);
+const loanStartEvents = events.filter((event) => event.type === "LOAN_START");
+const totalLoans = loanStartEvents.length;
+const borrowedItems = loanStartEvents.map((event) => event.label).filter(Boolean);
+const dropOffCounts = countEventsByLabel(checkInEvents);
+const pickUpCounts = countEventsByLabel(checkOutEvents);
+```
+
+### Changements de noms:
+- **punishEndEvents** → **punishmentEndEvents**
+- **punishTotal** → **totalPunishments**
+- **punishMinutesTotal** → **totalPunishmentMinutes**
+- **loanTotal** → **totalLoans**
+- **loanItems** → **borrowedItems**
+- **droppedByCounts** → **dropOffCounts**
+- **pickedUpByCounts** → **pickUpCounts**
+- **countLabels** → **countEventsByLabel**
+- **e/ev** → **event** (paramètres de fonction)
+
+### Reason:
+Noms de variables explicites et auto-documentés qui suivent les conventions JavaScript standard pour une meilleure lisibilité et maintenabilité.

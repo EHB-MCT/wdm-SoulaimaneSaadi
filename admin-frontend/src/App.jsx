@@ -92,6 +92,34 @@ export default function App() {
     if (admin) loadEvents(selectedChildId);
   }, [selectedChildId, admin]);
 
+  /* Statistics Calculations */
+  const punishmentEndEvents = events.filter((event) => event.type === "PUNISH_END");
+  const totalPunishments = punishmentEndEvents.length;
+
+  const totalPunishmentMinutes = punishmentEndEvents.reduce((sum, event) => {
+    return sum + (event.durationMinutes || 0);
+  }, 0);
+
+  const loanStartEvents = events.filter((event) => event.type === "LOAN_START");
+  const totalLoans = loanStartEvents.length;
+
+  const borrowedItems = loanStartEvents.map((event) => event.label).filter(Boolean);
+
+  const checkInEvents = events.filter((event) => event.type === "CHECK_IN");
+  const checkOutEvents = events.filter((event) => event.type === "CHECK_OUT");
+
+  function countEventsByLabel(eventList) {
+    const labelCounts = {};
+    for (const event of eventList) {
+      const label = event.label || "unknown";
+      labelCounts[label] = (labelCounts[label] || 0) + 1;
+    }
+    return labelCounts;
+  }
+
+  const dropOffCounts = countEventsByLabel(checkInEvents);
+  const pickUpCounts = countEventsByLabel(checkOutEvents);
+
   const filteredChildren = showPresentOnly
     ? children.filter((child) => child.status === "present")
     : children;
