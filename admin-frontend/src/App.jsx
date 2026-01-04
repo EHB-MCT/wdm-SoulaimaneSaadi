@@ -1,0 +1,435 @@
+import { useEffect, useState } from "react";
+import "./App.css";
+
+export default function App() {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [admin, setAdmin] = useState(null);
+
+  // label picker
+  const [label, setLabel] = useState("mama");
+
+  // filter present only
+  const [showPresentOnly, setShowPresentOnly] = useState(false);
+
+  // Filter states
+  const [filterPresent, setFilterPresent] = useState(false);
+  const [filterRestricted, setFilterRestricted] = useState(false);
+  const [filterHasItem, setFilterHasItem] = useState(false);
+  const [sortBy, setSortBy] = useState("name");
+
+  const [children, setChildren] = useState([]);
+  const [selectedChildId, setSelectedChildId] = useState("");
+  const [events, setEvents] = useState([]);
+
+  // Navigation security check
+  function checkChildAuthAndRedirect() {
+    // Check if child is logged in (token in localStorage or session)
+    const childToken = localStorage.getItem('childToken') || sessionStorage.getItem('childToken');
+    
+    if (childToken) {
+      window.location.href = 'http://localhost:5174'; // Child app URL
+    } else {
+      window.location.href = 'http://localhost:5174'; // Child login page
+    }
+  }
+
+  // Clean up admin token on logout
+  function logout() {
+    localStorage.removeItem('adminToken');
+    sessionStorage.removeItem('adminToken');
+    setAdmin(null);
+  }
+
+  async function login() {
+    const res = await fetch("http://localhost:3000/admin/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password })
+    });
+
+    if (res.ok) {
+      const data = await res.json();
+      setAdmin(data);
+      // Store admin token for secure navigation
+      localStorage.setItem('adminToken', data.token || 'admin-logged-in');
+    } else {
+      alert("Login failed");
+    }
+  }
+
+  async function loadChildren() {
+    const res = await fetch("http://localhost:3000/children");
+    const data = await res.json();
+    setChildren(data);
+  }
+
+  async function loadEvents(childId) {
+    if (!childId) {
+      setEvents([]);
+      return;
+    }
+
+    const res = await fetch("http://localhost:3000/events?childId=" + childId);
+    const data = await res.json();
+    setEvents(data);
+  }
+
+  // generic event creator
+  async function createEvent(childId, type) {
+    await fetch("http://localhost:3000/events", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ childId, type, label })
+    });
+
+    await loadChildren();
+    await loadEvents(childId);
+  }
+
+  // Punish start function
+  async function punishStart(childId) {
+    await fetch("http://localhost:3000/events", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ childId: childId, type: "PUNISH_START", label })
+    });
+
+    await loadChildren();
+    await loadEvents(childId);
+  }
+
+  // Punish end function
+  async function punishEnd(childId) {
+    await fetch("http://localhost:3000/events", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ childId: childId, type: "PUNISH_END", label })
+    });
+
+    await loadChildren();
+    await loadEvents(childId);
+  }
+
+  useEffect(() => {
+    if (admin) loadChildren();
+  }, [admin]);
+
+  useEffect(() => {
+    if (admin) loadEvents(selectedChildId);
+  }, [selectedChildId, admin]);
+
+  /* Statistics Calculations */
+  const punishmentEndEvents = events.filter((event) => event.type === "PUNISH_END");
+  const totalPunishments = punishmentEndEvents.length;
+
+  const totalPunishmentMinutes = punishmentEndEvents.reduce((sum, event) => {
+    return sum + (event.durationMinutes || 0);
+  }, 0);
+
+  const loanStartEvents = events.filter((event) => event.type === "LOAN_START");
+  const totalLoans = loanStartEvents.length;
+
+  const borrowedItems = loanStartEvents.map((event) => event.label).filter(Boolean);
+
+  const checkInEvents = events.filter((event) => event.type === "CHECK_IN");
+  const checkOutEvents = events.filter((event) => event.type === "CHECK_OUT");
+
+  function countEventsByLabel(eventList) {
+    const labelCounts = {};
+    for (const event of eventList) {
+      const label = event.label || "unknown";
+      labelCounts[label] = (labelCounts[label] || 0) + 1;
+    }
+    return labelCounts;
+  }
+
+  const dropOffCounts = countEventsByLabel(checkInEvents);
+  const pickUpCounts = countEventsByLabel(checkOutEvents);
+
+  const filteredChildren = showPresentOnly
+    ? children.filter((child) => child.status === "present")
+    : children;
+
+  // ÉTAPE 14 — Stats par enfant (pour tri)
+  const statsByChildId = {};
+
+  for (const event of events) {
+    const childId = (event.childId?._id || event.childId || "").toString();
+    if (!childId) continue;
+
+    if (!statsByChildId[childId]) {
+      statsByChildId[childId] = { punish: 0, loans: 0 };
+    }
+
+    if (event.type === "PUNISH_END") statsByChildId[childId].punish += 1;
+    if (event.type === "LOAN_START") statsByChildId[childId].loans += 1;
+  }
+
+  // ÉTAPE 15 — Filtrage + tri (display list)
+  let filteredAndSortedChildren = [...children];
+
+  if (filterPresent) {
+    filteredAndSortedChildren = filteredAndSortedChildren.filter(
+      (child) => child.status === "present"
+    );
+  }
+
+  if (filterRestricted) {
+    filteredAndSortedChildren = filteredAndSortedChildren.filter(
+      (child) => child.isRestricted === true
+    );
+  }
+
+  if (filterHasItem) {
+    filteredAndSortedChildren = filteredAndSortedChildren.filter(
+      (child) => Boolean(child.currentItem)
+    );
+  }
+
+  if (sortBy === "name") {
+    filteredAndSortedChildren.sort((a, b) =>
+      (a.name ?? "").localeCompare(b.name ?? "")
+    );
+  }
+
+  if (sortBy === "punishments") {
+    filteredAndSortedChildren.sort((a, b) => {
+      const aPunishCount = statsByChildId[a._id]?.punish || 0;
+      const bPunishCount = statsByChildId[b._id]?.punish || 0;
+      return bPunishCount - aPunishCount;
+    });
+  }
+
+  if (sortBy === "loans") {
+    filteredAndSortedChildren.sort((a, b) => {
+      const aLoanCount = statsByChildId[a._id]?.loans || 0;
+      const bLoanCount = statsByChildId[b._id]?.loans || 0;
+      return bLoanCount - aLoanCount;
+    });
+  }
+
+  const selectedChild = children.find(child => child._id === selectedChildId);
+
+  if (!admin) {
+    return (
+      <div className="login-container">
+        <h1>Admin Login</h1>
+
+        <div className="form-group">
+          <input
+            placeholder="Email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+          />
+        </div>
+
+        <div className="form-group">
+          <input
+            type="password"
+            placeholder="Password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
+        </div>
+
+        <button onClick={login}>Login</button>
+      </div>
+    );
+  }
+
+  return (
+    <div className="app-container">
+      <div className="dashboard">
+        {/* Navigation Header */}
+        <div className="nav-header">
+          <h1 style={{ margin: 0, fontSize: '20px' }}>Admin Dashboard</h1>
+          <button 
+            className="nav-button"
+            onClick={checkChildAuthAndRedirect}
+            title="Go to Child Dashboard"
+          >
+            Child
+          </button>
+        </div>
+  
+        <div className="dashboard-content">
+          <div className="children-panel">
+            <h2>Children</h2>
+  
+            {/* ÉTAPE 16 - Filter UI */}
+            <div className="filters">
+              <label>
+                <input
+                  type="checkbox"
+                  checked={filterPresent}
+                  onChange={(e) => setFilterPresent(e.target.checked)}
+                />
+                Present only
+              </label>
+  
+              <label>
+                <input
+                  type="checkbox"
+                  checked={filterRestricted}
+                  onChange={(e) => setFilterRestricted(e.target.checked)}
+                />
+                Restricted only
+              </label>
+  
+              <label>
+                <input
+                  type="checkbox"
+                  checked={filterHasItem}
+                  onChange={(e) => setFilterHasItem(e.target.checked)}
+                />
+                Has item only
+              </label>
+  
+              <select value={sortBy} onChange={(e) => setSortBy(e.target.value)}>
+                <option value="name">Sort: Name</option>
+                <option value="punishments">Sort: Punishments</option>
+                <option value="loans">Sort: Loans</option>
+              </select>
+            </div>
+  
+            {filteredAndSortedChildren.length === 0 && (
+              <p className="no-children">No children found</p>
+            )}
+  
+            {filteredAndSortedChildren.map((child) => (
+              <div
+                key={child._id}
+                className={`child-card ${selectedChildId === child._id ? "selected" : ""}`}
+                onClick={() => setSelectedChildId(child._id)}
+              >
+                <strong>{child.name}</strong>
+                <p>Status: {child.status}</p>
+                <p>Restricted: {String(child.isRestricted)}</p>
+                <p>
+                  Restricted until:{" "}
+                  {child.restrictedUntil
+                    ? new Date(child.restrictedUntil).toLocaleString()
+                    : "no"}
+                </p>
+                <p>Item: {child.currentItem ? child.currentItem : "none"}</p>
+  
+                <div className="form-group">
+                  <select value={label} onChange={(e) => setLabel(e.target.value)}>
+                    <option value="mama">mama</option>
+                    <option value="papa">papa</option>
+                    <option value="broer">broer</option>
+                    <option value="zus">zus</option>
+                    <option value="vriend">vriend</option>
+                    <option value="familie">familie</option>
+                  </select>
+                </div>
+  
+                <div className="button-group">
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      createEvent(child._id, "CHECK_IN");
+                    }}
+                  >
+                    Check-in
+                  </button>
+  
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      createEvent(child._id, "CHECK_OUT");
+                    }}
+                  >
+                    Check-out
+                  </button>
+                </div>
+  
+                <div className="button-group">
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      punishStart(child._id);
+                    }}
+                  >
+                    Punish start
+                  </button>
+  
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      punishEnd(child._id);
+                    }}
+                  >
+                    Punish end
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+  
+          <div className="events-panel">
+            <h2>Events</h2>
+  
+            {selectedChild && (
+              <div>
+                <div className="child-profile">
+                  <p><strong>Name:</strong> {selectedChild.name}</p>
+                  <p><strong>Email:</strong> {selectedChild.email}</p>
+                  <p><strong>Current item:</strong> {selectedChild.currentItem || "none"}</p>
+                  <p><strong>Restricted:</strong> {selectedChild.isRestricted ? "Yes" : "No"}</p>
+                </div>
+  
+                <div className="child-stats">
+                  <h3>Stats</h3>
+                  <p><strong>Punishments:</strong> {totalPunishments}</p>
+                  <p><strong>Punish time total:</strong> {totalPunishmentMinutes} min</p>
+  
+                  <p><strong>Loans:</strong> {totalLoans}</p>
+                  <p><strong>Loan items:</strong> {borrowedItems.join(", ") || "none"}</p>
+  
+                  <div className="mt-md">
+                    <p className="text-secondary"><strong>Dropped by:</strong></p>
+                    {Object.keys(dropOffCounts).map((label) => (
+                      <p key={label} className="text-secondary ml-sm">
+                        {label}: {dropOffCounts[label]}
+                      </p>
+                    ))}
+                  </div>
+  
+                  <div className="mt-md">
+                    <p className="text-secondary"><strong>Picked up by:</strong></p>
+                    {Object.keys(pickUpCounts).map((label) => (
+                      <p key={label} className="text-secondary ml-sm">
+                        {label}: {pickUpCounts[label]}
+                      </p>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
+  
+            {!selectedChildId && (
+              <p className="text-center text-secondary">Select a child to see events.</p>
+            )}
+  
+            {selectedChildId && events.length === 0 && (
+              <p className="text-center text-secondary">No events for this child.</p>
+            )}
+  
+            {events.map((event) => (
+              <div key={event._id} className="event-item">
+                <strong>
+                  {event.type} {event.label ? `(${event.label})` : ""}
+                  {event.durationMinutes != null && ` - ${event.durationMinutes} min`}
+                </strong>
+                <br />
+                <small>{new Date(event.timestamp).toLocaleString()}</small>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}  

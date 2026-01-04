@@ -1,0 +1,113 @@
+services:
+  # MongoDB (Data persistante)
+  mongo:
+    image: mongo:7
+    container_name: wdm-mongo
+    restart: always
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+      - ./mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=admin
+      - MONGO_INITDB_ROOT_PASSWORD=password
+      - MONGO_INITDB_DATABASE=Items
+    networks:
+      - wdm-network
+
+  # Backend API (Node.js + Express)
+  backend:
+    build: ./backend
+    container_name: wdm-backend
+    restart: always
+    env_file:
+      - ./backend/.env
+    depends_on:
+      - mongo
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+    networks:
+      - wdm-network
+    environment:
+      - NODE_ENV=production
+
+  # Admin Frontend (React)
+  admin-frontend:
+    build:
+      context: ./admin-frontend
+      dockerfile: Dockerfile
+    container_name: wdm-admin-frontend
+    restart: always
+    ports:
+      - "5173:80"
+    depends_on:
+      - backend
+    networks:
+      - wdm-network
+    environment:
+      - VITE_API_URL=http://localhost:3000
+
+  # Child Frontend (React)
+  child-frontend:
+    build:
+      context: ./child-frontend
+      dockerfile: Dockerfile
+    container_name: wdm-child-frontend
+    restart: always
+    ports:
+      - "5174:80"
+    depends_on:
+      - backend
+    networks:
+      - wdm-network
+    environment:
+      - VITE_API_URL=http://localhost:3000
+
+   # Mongo Express Admin Interface
+  mongo-express:
+    image: mongo-express
+    container_name: wdm-mongo-express
+    restart: always
+    ports:
+      - "8081:8081"
+    depends_on:
+      - mongo
+    networks:
+      - wdm-network
+    environment:
+      - ME_CONFIG_MONGODB_SERVER=mongo
+      - ME_CONFIG_MONGODB_PORT=27017
+      - ME_CONFIG_MONGODB_ADMINUSERNAME=admin
+      - ME_CONFIG_MONGODB_ADMINPASSWORD=password
+      - ME_CONFIG_BASICAUTH=false
+
+  # Nginx Reverse Proxy (Optional - for production)
+  nginx:
+    image: nginx:alpine
+    container_name: wdm-nginx
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./nginx/ssl:/etc/nginx/ssl
+    depends_on:
+      - admin-frontend
+      - child-frontend
+      - backend
+    networks:
+      - wdm-network
+    profiles:
+      - production
+
+volumes:
+  mongo-data:
+
+networks:
+  wdm-network:
+    driver: bridge
