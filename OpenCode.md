@@ -90,3 +90,25 @@ if (req.body.type === "PUNISH_END") {
 
 ### Reason:
 3 punishments today → restricted until tomorrow 00:00, with automatic item return and LOAN_END event creation.
+
+## Fix 5: Child Frontend Restricted Date Display
+**Date:** 2026-01-03  
+**File:** child-frontend/src/App.jsx  
+**Lines:** 155-160
+
+### Problem:
+Child couldn't see when restriction ends.
+
+### Solution:
+Added restricted until date display:
+
+```javascript
+{child.restrictedUntil && (
+  <p style={{ marginTop: 5 }}>
+    Restricted until: {new Date(child.restrictedUntil).toLocaleString()}
+  </p>
+)}
+```
+
+### Reason:
+Shows child the exact date/time when restriction ends, improving user experience and transparency.

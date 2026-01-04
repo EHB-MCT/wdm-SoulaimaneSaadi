@@ -94,7 +94,7 @@ export default function App() {
 
       <p>Your item: {child.currentItem ? child.currentItem : "none"}</p>
 
-      /* TAKE */
+      
       <button
         disabled={child.isRestricted || !!child.currentItem}
         onClick={async () => {
@@ -120,7 +120,7 @@ export default function App() {
         Take the ball
       </button>
 
-      /* RETURN */
+    
       <button
         style={{ marginLeft: 10 }}
         disabled={!child.currentItem}
@@ -152,7 +152,13 @@ export default function App() {
         </p>
       )}
 
-      /* Other kids */
+      {child.restrictedUntil && (
+        <p style={{ marginTop: 5 }}>
+          Restricted until: {new Date(child.restrictedUntil).toLocaleString()}
+        </p>
+      )}
+
+    
       <h2 style={{ marginTop: 30 }}>Other kids</h2>
 
       {publicChildren.map((publicChild) => (
