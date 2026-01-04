@@ -94,7 +94,7 @@ export default function App() {
 
       <p>Your item: {child.currentItem ? child.currentItem : "none"}</p>
 
-      {/* TAKE */}
+      /* TAKE */
       <button
         disabled={child.isRestricted || !!child.currentItem}
         onClick={async () => {
