@@ -641,3 +641,73 @@ for (const event of events) {
 
 ### Reason:
 Évite les bugs étranges avec les données MongoDB, protège contre les events corrompus, et assure une base solide pour le système de tri.
+
+## Fix 19: ÉTAPE 15 - Filtering and Sorting Logic
+**Date:** 2026-01-04  
+**File:** admin-frontend/src/App.jsx  
+**Lines:** 147-169
+
+### Ta demande:
+"Stap 15 — Filteren + sorteren (maak displayChildren)" - Tu voulais que j'implémente la logique de filtrage et de tri de la liste des enfants.
+
+### Solution:
+Ajouté la logique de filtrage et de tri après le calcul des stats:
+
+```javascript
+// ÉTAPE 15 — Filtrage et tri
+let filteredAndSortedChildren = [...children];
+
+if (filterPresent) {
+  filteredAndSortedChildren = filteredAndSortedChildren.filter((child) => child.status === "present");
+}
+
+if (filterRestricted) {
+  filteredAndSortedChildren = filteredAndSortedChildren.filter((child) => child.isRestricted === true);
+}
+
+if (filterHasItem) {
+  filteredAndSortedChildren = filteredAndSortedChildren.filter((child) => child.currentItem);
+}
+
+if (sortBy === "name") {
+  filteredAndSortedChildren.sort((a, b) => a.name.localeCompare(b.name));
+}
+
+if (sortBy === "punish") {
+  filteredAndSortedChildren.sort((a, b) => {
+    const aPunishCount = statsByChildId[a._id]?.punish || 0;
+    const bPunishCount = statsByChildId[b._id]?.punish || 0;
+    return bPunishCount - aPunishCount;
+  });
+}
+
+if (sortBy === "loans") {
+  filteredAndSortedChildren.sort((a, b) => {
+    const aLoanCount = statsByChildId[a._id]?.loans || 0;
+    const bLoanCount = statsByChildId[b._id]?.loans || 0;
+    return bLoanCount - aLoanCount;
+  });
+}
+```
+
+### Fonctionnalités implémentées:
+- **Filtre Présents** : `filterPresent` → `status === "present"`
+- **Filtre Restreints** : `filterRestricted` → `isRestricted === true`
+- **Filtre Avec Item** : `filterHasItem` → `currentItem` (truthy)
+- **Tri par Nom** : Alphabétique avec `localeCompare()`
+- **Tri par Punitions** : Décroissant (`b - a`)
+- **Tri par Emprunts** : Décroissant (`b - a`)
+
+### Noms de variables professionnels:
+- **displayChildren** → **filteredAndSortedChildren**
+- **c** → **child** (paramètres de fonction)
+- **aCount/bCount** → **aPunishCount/bPunishCount**, **aLoanCount/bLoanCount**
+- Utilise **optional chaining** (`?.`) pour la sécurité
+
+### Logique de tri:
+- **Tri par défaut** : par ordre croissant de punitions/emprunts (plus gros d'abord)
+- **Fallback à 0** : pour les enfants sans stats
+- **Copie immuable** : `[...children]` pour éviter les mutations
+
+### Reason:
+Crée une liste d'enfants dynamique qui s'adapte aux filtres et au tri choisis par l'admin, sans requêtes backend supplémentaires.

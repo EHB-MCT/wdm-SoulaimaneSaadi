@@ -145,6 +145,49 @@ export default function App() {
     if (event.type === "LOAN_START") statsByChildId[childId].loans += 1;
   }
 
+  // ÉTAPE 15 — Filtrage + tri (display list)
+  let filteredAndSortedChildren = [...children];
+
+  if (filterPresent) {
+    filteredAndSortedChildren = filteredAndSortedChildren.filter(
+      (child) => child.status === "present"
+    );
+  }
+
+  if (filterRestricted) {
+    filteredAndSortedChildren = filteredAndSortedChildren.filter(
+      (child) => child.isRestricted === true
+    );
+  }
+
+  if (filterHasItem) {
+    filteredAndSortedChildren = filteredAndSortedChildren.filter(
+      (child) => Boolean(child.currentItem)
+    );
+  }
+
+  if (sortBy === "name") {
+    filteredAndSortedChildren.sort((a, b) =>
+      (a.name ?? "").localeCompare(b.name ?? "")
+    );
+  }
+
+  if (sortBy === "punishments") {
+    filteredAndSortedChildren.sort((a, b) => {
+      const aPunishCount = statsByChildId[a._id]?.punish || 0;
+      const bPunishCount = statsByChildId[b._id]?.punish || 0;
+      return bPunishCount - aPunishCount;
+    });
+  }
+
+  if (sortBy === "loans") {
+    filteredAndSortedChildren.sort((a, b) => {
+      const aLoanCount = statsByChildId[a._id]?.loans || 0;
+      const bLoanCount = statsByChildId[b._id]?.loans || 0;
+      return bLoanCount - aLoanCount;
+    });
+  }
+
   const selectedChild = children.find(child => child._id === selectedChildId);
 
   if (!admin) {
@@ -188,9 +231,9 @@ export default function App() {
             Show present today only
           </label>
 
-          {filteredChildren.length === 0 && <p>No children yet.</p>}
+          {filteredAndSortedChildren.length === 0 && <p>No children yet.</p>}
 
-          {filteredChildren.map((child) => (
+          {filteredAndSortedChildren.map((child) => (
             <div
               key={child._id}
               className={`child-card ${
