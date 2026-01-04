@@ -1,9 +1,12 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 export default function App() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [child, setChild] = useState(null);
+
+  // public children list
+  const [publicChildren, setPublicChildren] = useState([]);
 
   async function login() {
     const res = await fetch("http://localhost:3000/auth/login", {
@@ -25,7 +28,7 @@ export default function App() {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        name: email, // simple: use email as name
+        name: email,
         email,
         password
       })
@@ -38,6 +41,18 @@ export default function App() {
       alert("Register failed");
     }
   }
+
+  // ✅ load public children
+  async function loadPublicChildren() {
+    const res = await fetch("http://localhost:3000/children/public");
+    const data = await res.json();
+    setPublicChildren(data);
+  }
+
+  // ✅ load after login
+  useEffect(() => {
+    if (child) loadPublicChildren();
+  }, [child]);
 
   if (!child) {
     return (
@@ -71,6 +86,7 @@ export default function App() {
     <div style={{ padding: 20 }}>
       <h1>Welcome {child.name}</h1>
 
+      /* TAKE BALL */
       <button
         disabled={child.isRestricted}
         onClick={async () => {
@@ -84,17 +100,29 @@ export default function App() {
           });
 
           if (res.ok) {
-            alert("You took the ball");
+            alert("Ball taken ✅");
+            loadPublicChildren(); // refresh list
           } else {
-            const err = await res.json();
-            alert(err.message || "Error");
+            alert("Error");
           }
         }}
       >
         Take the ball
       </button>
 
-      {child.isRestricted && <p>You need to be more kind buddy.</p>}
+      {child.isRestricted && (
+        <p>You need to be more kind buddy.</p>
+      )}
+
+      /* Public children list */
+      <h2 style={{ marginTop: 30 }}>Who is here today</h2>
+
+      {publicChildren.map((publicChild) => (
+        <div key={publicChild._id}>
+          <strong>{publicChild.name}</strong> — {publicChild.status} —{" "}
+          {publicChild.currentItem || "no item"}
+        </div>
+      ))}
     </div>
   );
 }
