@@ -1,21 +1,21 @@
 // MongoDB initialization script
-// This script creates the admin user in the games-db database
+// This script creates the admin user in the items-db database
 
-// Switch to the games-db database
-db = db.getSiblingDB('games-db');
+// Switch to the items-db database
+db = db.getSiblingDB('items-db');
 
-// Create admin user in games-db
+// Create admin user in items-db
 db.createUser({
   user: 'admin',
   pwd: 'password',
   roles: [
     {
       role: 'readWrite',
-      db: 'games-db'
+      db: 'items-db'
     },
     {
       role: 'dbAdmin',
-      db: 'games-db'
+      db: 'items-db'
     }
   ]
 });

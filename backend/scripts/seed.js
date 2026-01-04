@@ -9,7 +9,7 @@ const seedData = async (shouldDisconnect = true) => {
   
   try {
     // Connect to MongoDB
-    const mongoUri = process.env.MONGO_URI || 'mongodb://admin:password@mongo:27017/games-db?authSource=admin';
+    const mongoUri = process.env.MONGO_URI || 'mongodb://admin:password@mongo:27017/items-db?authSource=admin';
     await mongoose.connect(mongoUri);
     console.log('✅ Connected to MongoDB');
 

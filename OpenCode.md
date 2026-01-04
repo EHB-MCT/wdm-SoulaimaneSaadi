@@ -1230,7 +1230,7 @@ Transforme l'application en un déploiement Docker production-ready avec sécuri
 **Files:** backend/package.json, backend/backend.js, docker-compose.yml, backend/.env.template
 
 ### Ta demande:
-"transform mon mongodb en mongoexpress comme sa je peut le voir sur docker et dans.env tu dois changer le mongoURI avec sa => MONGO_URI=mongodb://admin:password123@mongo:27017/games-db?authSource=admin" - Tu voulais remplacer mongo-ui par mongo-express avec authentification et URI spécifique.
+"transform mon mongodb en mongoexpress comme sa je peut le voir sur docker et dans.env tu dois changer le mongoURI avec sa => MONGO_URI=mongodb://admin:password123@mongo:27017/items-db?authSource=admin" - Tu voulais remplacer mongo-ui par mongo-express avec authentification et URI spécifique.
 
 ### Solution:
 Implémentation complète avec double connexion MongoDB + interface d'administration web :
@@ -1258,7 +1258,7 @@ const { MongoClient } = "mongodb";
 let db;
 MongoClient.connect(process.env.MONGO_URI)
   .then(client => {
-    db = client.db('games-db');
+    db = client.db('items-db');
     console.log("MongoDB Admin interface connected");
   })
 ```
@@ -1297,7 +1297,7 @@ mongo:
   environment:
     - MONGO_INITDB_ROOT_USERNAME=admin
     - MONGO_INITDB_ROOT_PASSWORD=password
-    - MONGO_INITDB_DATABASE=games-db
+    - MONGO_INITDB_DATABASE=items-db
 
 # Mongo Express Admin Interface
 mongo-express:
@@ -1308,13 +1308,13 @@ mongo-express:
     - ME_CONFIG_MONGODB_ENABLE_ADMIN=true
     - ME_CONFIG_BASICAUTH_USERNAME=admin
     - ME_CONFIG_BASICAUTH_PASSWORD=password
-    - ME_CONFIG_MONGODB_AUTH_DATABASE=games-db
+    - ME_CONFIG_MONGODB_AUTH_DATABASE=items-db
 ```
 
 **5. Environment Variables (.env.template):**
 ```bash
 PORT=3000
-MONGO_URI=mongodb://admin:password123@mongo:27017/games-db?authSource=admin
+MONGO_URI=mongodb://admin:password123@mongo:27017/items-db?authSource=admin
 
 # Mongo Express Configuration
 ME_CONFIG_MONGODB_SERVER=mongo
@@ -1322,7 +1322,7 @@ ME_CONFIG_MONGODB_PORT=27017
 ME_CONFIG_MONGODB_ENABLE_ADMIN=true
 ME_CONFIG_BASICAUTH_USERNAME=admin
 ME_CONFIG_BASICAUTH_PASSWORD=password
-ME_CONFIG_MONGODB_AUTH_DATABASE=games-db
+ME_CONFIG_MONGODB_AUTH_DATABASE=items-db
 ```
 
 **6. HTML Admin Interface Features:**

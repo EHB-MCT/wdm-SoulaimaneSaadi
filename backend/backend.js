@@ -55,7 +55,7 @@ mongoose.connect(process.env.MONGO_URI)
 // Connect to MongoDB for Admin interface
 MongoClient.connect(process.env.MONGO_URI)
   .then(client => {
-    db = client.db('games-db');
+    db = client.db('items-db');
     console.log("MongoDB Admin interface connected");
   })
   .catch(err => {
@@ -132,7 +132,7 @@ function generateAdminHtml(collectionsData, stats) {
         <header class="mb-6">
             <h1 class="text-3xl font-bold text-gray-800 mb-4">🗄️ MongoDB Admin - WDM</h1>
             <div class="text-sm text-gray-600 mb-4">
-                Base de données: <span class="font-mono text-blue-600">${process.env.MONGO_URI?.split('/')[2] || 'games-db'}</span>
+                Base de données: <span class="font-mono text-blue-600">${process.env.MONGO_URI?.split('/')[2] || 'items-db'}</span>
             </div>
             
             <nav class="flex space-x-2 mb-6">
