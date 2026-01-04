@@ -22,6 +22,18 @@ export default function App() {
   const [selectedChildId, setSelectedChildId] = useState("");
   const [events, setEvents] = useState([]);
 
+  // Navigation security check
+  function checkChildAuthAndRedirect() {
+    // Check if child is logged in (token in localStorage or session)
+    const childToken = localStorage.getItem('childToken') || sessionStorage.getItem('childToken');
+    
+    if (childToken) {
+      window.location.href = 'http://localhost:5174'; // Child app URL
+    } else {
+      window.location.href = 'http://localhost:5174'; // Child login page
+    }
+  }
+
   async function login() {
     const res = await fetch("http://localhost:3000/admin/login", {
       method: "POST",
@@ -220,7 +232,17 @@ export default function App() {
   return (
     <div className="app-container">
       <div className="dashboard">
-        <h1>Admin Dashboard</h1>
+        {/* Navigation Header */}
+        <div className="nav-header">
+          <h1 style={{ margin: 0, fontSize: '20px' }}>Admin Dashboard</h1>
+          <button 
+            className="nav-button"
+            onClick={checkChildAuthAndRedirect}
+            title="Go to Child Dashboard"
+          >
+            Child
+          </button>
+        </div>
   
         <div className="dashboard-content">
           <div className="children-panel">
