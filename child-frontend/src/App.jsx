@@ -8,6 +8,18 @@ export default function App() {
   // public children list
   const [publicChildren, setPublicChildren] = useState([]);
 
+  // Navigation security check
+  function checkAdminAuthAndRedirect() {
+    // Check if admin is logged in (token in localStorage or session)
+    const adminToken = localStorage.getItem('adminToken') || sessionStorage.getItem('adminToken');
+    
+    if (adminToken) {
+      window.location.href = 'http://localhost:5173'; // Admin app URL
+    } else {
+      window.location.href = 'http://localhost:5173/login'; // Admin login page
+    }
+  }
+
   async function login() {
     const res = await fetch("http://localhost:3000/auth/login", {
       method: "POST",
@@ -92,6 +104,18 @@ if (!child) {
 
   return (
     <div className="app-container">
+      {/* Navigation Header */}
+      <div className="nav-header">
+        <h1 style={{ margin: 0, fontSize: '18px' }}>Child Dashboard</h1>
+        <button 
+          className="nav-button"
+          onClick={checkAdminAuthAndRedirect}
+          title="Go to Admin Dashboard"
+        >
+          Admin
+        </button>
+      </div>
+      
       <div className="child-dashboard">
         <div className="welcome-section">
           <h1>Welcome {child.name}</h1>
@@ -183,85 +207,5 @@ if (!child) {
   );
 
 
-  return (
-    <div style={{ padding: 20 }}>
-      <h1>Welcome {child.name}</h1>
 
-      <p>Your item: {child.currentItem ? child.currentItem : "none"}</p>
-
-      
-      <button
-        disabled={child.isRestricted || !!child.currentItem}
-        onClick={async () => {
-          const res = await fetch("http://localhost:3000/loan/take", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              childId: child._id,
-              itemName: "Ball"
-            })
-          });
-
-          if (res.ok) {
-            await refreshChild();
-            await loadPublicChildren();
-            alert("You took the ball ");
-          } else {
-            const err = await res.json();
-            alert(err.message || "Error");
-          }
-        }}
-      >
-        Take the ball
-      </button>
-
-    
-      <button
-        style={{ marginLeft: 10 }}
-        disabled={!child.currentItem}
-        onClick={async () => {
-          const res = await fetch("http://localhost:3000/loan/return", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              childId: child._id
-            })
-          });
-
-          if (res.ok) {
-            await refreshChild();
-            await loadPublicChildren();
-            alert("Returned");
-          } else {
-            const err = await res.json();
-            alert(err.message || "Error");
-          }
-        }}
-      >
-        Return item
-      </button>
-
-      {child.isRestricted && (
-        <p style={{ marginTop: 10 }}>
-          You need to be more kind buddy 
-        </p>
-      )}
-
-      {child.restrictedUntil && (
-        <p style={{ marginTop: 5 }}>
-          Restricted until: {new Date(child.restrictedUntil).toLocaleString()}
-        </p>
-      )}
-
-    
-      <h2 style={{ marginTop: 30 }}>Other kids</h2>
-
-      {publicChildren.map((publicChild) => (
-        <div key={publicChild._id}>
-          <strong>{publicChild.name}</strong> —{" "}
-          {publicChild.currentItem ? publicChild.currentItem : "nothing"}
-        </div>
-      ))}
-    </div>
-  );
 }
