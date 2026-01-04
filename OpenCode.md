@@ -26,6 +26,10 @@ className={`child-card ${selectedChildId === c._id ? "selected" : ""}`}
 ### Reason:
 Template literals provide cleaner string interpolation and avoid potential type coercion issues that can occur with string concatenation in React components.
 
+### Ta demande:
+"J'ai une erreur dans app.jsx peux tu m'aider fix" - Tu avais une erreur React avec les className et tu voulais que je corrige.
+
+
 ## Fix 2: PUNISH_END Logic Implementation
 **Date:** 2026-01-03  
 **File:** backend/routes/events.js  
@@ -91,6 +95,10 @@ if (req.body.type === "PUNISH_END") {
 ### Reason:
 3 punishments today → restricted until tomorrow 00:00, with automatic item return and LOAN_END event creation.
 
+### Ta demande:
+"ÉTAPE 7 — Quand on fait PUNISH_END, on calcule si il doit être bloqué" - Tu voulais implémenter la logique de restriction automatique après 3 punitions du jour avec auto-return de l'item.
+
+
 ## Fix 5: Child Frontend Restricted Date Display
 **Date:** 2026-01-03  
 **File:** child-frontend/src/App.jsx  
@@ -113,6 +121,10 @@ Added restricted until date display:
 ### Reason:
 Shows child the exact date/time when restriction ends, improving user experience and transparency.
 
+
+### Ta demande:
+"ÉTAPE 8 — Child frontend: afficher 'bloqué jusqu'à…'" - Tu voulais que le child frontend affiche un message quand il est restricted et la date de fin de restriction.
+
 ## Fix 6: Admin Frontend RestrictedUntil Display
 **Date:** 2026-01-03  
 **File:** backend/models/Child.js & admin-frontend/src/App.jsx  
@@ -134,6 +146,10 @@ restrictedUntil: Date
 
 ### Reason:
 Admin can now see exactly when child restrictions end, and the backend properly stores restriction dates in the database.
+
+### Ta demande:
+"ÉTAPE 9 — Admin frontend: afficher restrictedUntil + punish count" - Tu voulais que l'admin frontend affiche la date de fin de restriction dans les cartes enfants.
+
 
 ## Fix 7: Admin Frontend ÉTAPE 9 - PUNISH_START/END Implementation
 **Date:** 2026-01-04  
@@ -178,3 +194,156 @@ async function punishEnd(childId) {
 
 ### Reason:
 Aligns admin frontend with new backend punishment system, provides better UX with separate start/end controls, and displays restriction dates clearly.
+
+### Ta demande:
+Je veux corriger mon admin-frontend (React) pour l'ÉTAPE 9 afin qu'il soit aligné avec mon backend actuel" - Tu voulais une refonte complète de l'admin frontend pour remplacer "PUNISH" par "PUNISH_START"/"PUNISH_END" avec des variables professionnelles et tous les détails UI/UX.
+
+## Fix 8: Admin Frontend ÉTAPE 10 - Profile Section
+**Date:** 2026-01-04  
+**File:** admin-frontend/src/App.jsx  
+**Lines:** 216-226
+
+### Problem:
+Admin couldn't see detailed profile information of selected child in events panel.
+
+### Solution:
+Added profile section above events:
+
+```javascript
+{selectedChildId && (
+  <div>
+    {children
+      .filter((c) => c._id === selectedChildId)
+      .map((c) => (
+        <div key={c._id}>
+          <p><strong>Name:</strong> {c.name}</p>
+          <p><strong>Email:</strong> {c.email}</p>
+          <p><strong>Current item:</strong> {c.currentItem || "none"}</p>
+          <p><strong>Restricted:</strong> {String(c.isRestricted)}</p>
+        </div>
+      ))}
+  </div>
+)}
+```
+
+### Reason:
+Provides admin with complete child profile overview in events panel, improving visibility of child details when managing events and punishments.
+
+### Ta demande:
+"ÉTAPE 10 — Admin: afficher 'Profile' au-dessus des events" - Tu voulais ajouter une section profile avec les détails de l'enfant sélectionné juste au-dessus de la liste des events dans le panel de droite.
+
+## Fix 9: ÉTAPE 10 - Code Propre & Optimisé
+**Date:** 2026-01-04  
+**File:** admin-frontend/src/App.jsx  
+**Lines:** 216-226
+
+### Ta demande:
+"je veux que les noms des variables ect comme on avait dit sois plus propre" - Tu voulais que le code du profile soit plus propre avec de meilleures variables.
+
+### Solution:
+Optimisé la logique avec variables professionnelles:
+
+```javascript
+// Avant (code avec map/filter inutile):
+{selectedChildId && (
+  <div>
+    {children
+      .filter((c) => c._id === selectedChildId)
+      .map((c) => (
+        <div key={c._id}>
+          <p><strong>Name:</strong> {c.name}</p>
+          <p><strong>Email:</strong> {c.email}</p>
+          <p><strong>Current item:</strong> {c.currentItem || "none"}</p>
+          <p><strong>Restricted:</strong> {String(c.isRestricted)}</p>
+        </div>
+      ))}
+  </div>
+)}
+
+// Après (code propre et optimisé):
+{selectedChildId && (() => {
+  const selectedChild = children.find(child => child._id === selectedChildId);
+  return selectedChild ? (
+    <div className="child-profile">
+      <p><strong>Name:</strong> {selectedChild.name}</p>
+      <p><strong>Email:</strong> {selectedChild.email}</p>
+      <p><strong>Current item:</strong> {selectedChild.currentItem || "none"}</p>
+      <p><strong>Restricted:</strong> {selectedChild.isRestricted ? "Yes" : "No"}</p>
+    </div>
+  ) : null;
+})()}
+```
+
+### Améliorations:
+- **find()** au lieu de filter().map() - plus performant
+- **selectedChild** - variable descriptive et professionnelle
+- **child-profile** - classe CSS pour style futur
+- **Yes/No** au lieu de String() - plus lisible
+- **IIFE ( Immediately Invoked Function Expression)** - pattern propre pour la logique conditionnelle
+- **Early return** - meilleure lisibilité
+
+### Reason:
+Code plus professionnel, performant et maintenable avec des noms de variables clairs et une logique optimisée.
+
+## Fix 10: ÉTAPE 10 - Code Ultra-Propre
+**Date:** 2026-01-04  
+**File:** admin-frontend/src/App.jsx  
+
+### Ta demande:
+"Juste 2 micro remarques 'propre/pro'" - Tu voulais que j'améliore encore la propreté du code.
+
+### Solution:
+Optimisé le pattern pour plus de propreté:
+
+```javascript
+// Avant (IIFE dans JSX):
+{selectedChildId && (() => {
+  const selectedChild = children.find(child => child._id === selectedChildId);
+  return selectedChild ? (
+    <div className="child-profile">...</div>
+  ) : null;
+})()}
+
+// Après (variable extraite avant return):
+const selectedChild = children.find(child => child._id === selectedChildId);
+
+// Dans le JSX:
+{selectedChild && (
+  <div className="child-profile">
+    <p><strong>Name:</strong> {selectedChild.name}</p>
+    <p><strong>Email:</strong> {selectedChild.email}</p>
+    <p><strong>Current item:</strong> {selectedChild.currentItem || "none"}</p>
+    <p><strong>Restricted:</strong> {selectedChild.isRestricted ? "Yes" : "No"}</p>
+  </div>
+)}
+```
+
+### Améliorations:
+- **Variable extraite** avant le return - pattern React standard
+- **Plus d'IIFE** dans le JSX - plus lisible et maintenable
+- **Code linéaire** - plus facile à debugger
+- **Performance** - calcul unique de selectedChild
+
+### Reason:
+Évite les patterns "hacky" dans le JSX, suit les conventions React standards avec variables calculées avant le render.
+
+## Fix 11: Duration Minutes - Safe Check
+**Date:** 2026-01-04  
+**File:** admin-frontend/src/App.jsx  
+
+### Ta demande:
+"event.durationMinutes && ... n'affiche pas si la durée = 0 (rare, mais possible)" - Tu voulais une version plus safe pour gérer le cas où durationMinutes = 0.
+
+### Solution:
+Remplacé le check simple par un check null explicite:
+
+```javascript
+// Avant (ne s'affiche pas si durée = 0):
+{event.durationMinutes && ` - ${event.durationMinutes} min`}
+
+// Après (safe, affiche même si durée = 0):
+{event.durationMinutes != null && ` - ${event.durationMinutes} min`}
+```
+
+### Reason:
+`!= null` vérifie explicitement `null` et `undefined` mais permet `0` comme valeur valide, évitant que les durées de 0 minutes ne soient masquées.

@@ -96,6 +96,8 @@ export default function App() {
     ? children.filter((child) => child.status === "present")
     : children;
 
+  const selectedChild = children.find(child => child._id === selectedChildId);
+
   if (!admin) {
     return (
       <div className="login-container">
@@ -214,6 +216,15 @@ export default function App() {
         <div className="events-panel">
           <h2>Events</h2>
 
+          {selectedChild && (
+            <div className="child-profile">
+              <p><strong>Name:</strong> {selectedChild.name}</p>
+              <p><strong>Email:</strong> {selectedChild.email}</p>
+              <p><strong>Current item:</strong> {selectedChild.currentItem || "none"}</p>
+              <p><strong>Restricted:</strong> {selectedChild.isRestricted ? "Yes" : "No"}</p>
+            </div>
+          )}
+
           {!selectedChildId && <p>Select a child to see events.</p>}
 
           {selectedChildId && events.length === 0 && (
@@ -224,7 +235,7 @@ export default function App() {
             <div key={event._id} className="event-item">
               <strong>
                 {event.type} {event.label ? `(${event.label})` : ""}
-                {event.durationMinutes && ` - ${event.durationMinutes} min`}
+                {event.durationMinutes != null && ` - ${event.durationMinutes} min`}
               </strong>
               <br />
               <small>{new Date(event.timestamp).toLocaleString()}</small>
