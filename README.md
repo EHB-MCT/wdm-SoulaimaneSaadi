@@ -183,6 +183,17 @@ docker compose down -v
 - Mongoose ODM
 - AI Assistance - OpenCode
 
+## Admin data
+
+- Email: admin@test.com
+- Password: admin123
+
+- Docker Compose environment variables documentation
+- Mongo Express Docker Hub
+- Express.js framework
+- Mongoose ODM
+- AI Assistance - OpenCode
+
 
 # Portfolio
 https://reactnative.dev/docs/environment-setup: Setup React Native project
