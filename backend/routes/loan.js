@@ -11,8 +11,16 @@ router.post("/take", async (req, res) => {
   try {
     const { childId, itemName } = req.body;
 
-    const child = await Child.findById(new ObjectId(childId));
+    let child;
+    try {
+      child = await Child.findById(new ObjectId(childId));
+    } catch (error) {
+      return res.status(400).json({ message: "Invalid child ID format" });
+    }
+    
     if (!child) return res.status(404).json({ message: "Child not found" });
+
+    console.log(`DEBUG: Child ${child.name} has currentItem: "${child.currentItem}"`);
 
     // check restrictedUntil ...
     if (child.restrictedUntil && new Date(child.restrictedUntil) > new Date()) {
@@ -28,9 +36,11 @@ router.post("/take", async (req, res) => {
       }
     }
 
-    if (child.isRestricted) {
-      return res.status(403).json({ message: "Restricted today" });
+    if (child.isRestricted || child.status === 'PUNISHED') {
+      return res.status(403).json({ message: child.status === 'PUNISHED' ? "Cannot take items while punished" : "Restricted today" });
     }
+
+    console.log(`DEBUG: currentItem check: "${child.currentItem}", typeof: ${typeof child.currentItem}, length: ${child.currentItem?.length}`);
 
     if (child.currentItem) {
       return res.status(400).json({ message: "Child already has an item" });
@@ -38,6 +48,8 @@ router.post("/take", async (req, res) => {
 
     const item = await Item.findOne({ name: itemName });
     if (!item) return res.status(404).json({ message: "Item not found" });
+
+    console.log(`DEBUG: Item "${itemName}" exists: ${!!item}, available: ${item?.isAvailable}`);
 
     if (!item.isAvailable) {
       return res.status(400).json({ message: "Item not available" });
@@ -68,7 +80,13 @@ router.post("/return", async (req, res) => {
   try {
     const { childId } = req.body;
 
-    const child = await Child.findById(new ObjectId(childId));
+    let child;
+    try {
+      child = await Child.findById(new ObjectId(childId));
+    } catch (error) {
+      return res.status(400).json({ message: "Invalid child ID format" });
+    }
+    
     if (!child) return res.status(404).json({ message: "Child not found" });
 
     if (!child.currentItem) {
