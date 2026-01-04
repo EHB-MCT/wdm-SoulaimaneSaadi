@@ -221,179 +221,184 @@ export default function App() {
     <div className="app-container">
       <div className="dashboard">
         <h1>Admin Dashboard</h1>
-
+  
         <div className="dashboard-content">
-        <div className="children-panel">
-          <h2>Children</h2>
-
-          {/* ÉTAPE 16 - Filter UI */}
-          <div className="filters">
-            <label>
-              <input
-                type="checkbox"
-                checked={filterPresent}
-                onChange={(e) => setFilterPresent(e.target.checked)}
-              />
-              Present only
-            </label>
-
-            <label>
-              <input
-                type="checkbox"
-                checked={filterRestricted}
-                onChange={(e) => setFilterRestricted(e.target.checked)}
-              />
-              Restricted only
-            </label>
-
-            <label>
-              <input
-                type="checkbox"
-                checked={filterHasItem}
-                onChange={(e) => setFilterHasItem(e.target.checked)}
-              />
-              Has item only
-            </label>
-
-            <select value={sortBy} onChange={(e) => setSortBy(e.target.value)}>
-              <option value="name">Sort: Name</option>
-              <option value="punishments">Sort: Punishments</option>
-              <option value="loans">Sort: Loans</option>
-            </select>
+          <div className="children-panel">
+            <h2>Children</h2>
+  
+            {/* ÉTAPE 16 - Filter UI */}
+            <div className="filters">
+              <label>
+                <input
+                  type="checkbox"
+                  checked={filterPresent}
+                  onChange={(e) => setFilterPresent(e.target.checked)}
+                />
+                Present only
+              </label>
+  
+              <label>
+                <input
+                  type="checkbox"
+                  checked={filterRestricted}
+                  onChange={(e) => setFilterRestricted(e.target.checked)}
+                />
+                Restricted only
+              </label>
+  
+              <label>
+                <input
+                  type="checkbox"
+                  checked={filterHasItem}
+                  onChange={(e) => setFilterHasItem(e.target.checked)}
+                />
+                Has item only
+              </label>
+  
+              <select value={sortBy} onChange={(e) => setSortBy(e.target.value)}>
+                <option value="name">Sort: Name</option>
+                <option value="punishments">Sort: Punishments</option>
+                <option value="loans">Sort: Loans</option>
+              </select>
+            </div>
+  
+            {filteredAndSortedChildren.length === 0 && (
+              <p className="no-children">No children found</p>
+            )}
+  
+            {filteredAndSortedChildren.map((child) => (
+              <div
+                key={child._id}
+                className={`child-card ${selectedChildId === child._id ? "selected" : ""}`}
+                onClick={() => setSelectedChildId(child._id)}
+              >
+                <strong>{child.name}</strong>
+                <p>Status: {child.status}</p>
+                <p>Restricted: {String(child.isRestricted)}</p>
+                <p>
+                  Restricted until:{" "}
+                  {child.restrictedUntil
+                    ? new Date(child.restrictedUntil).toLocaleString()
+                    : "no"}
+                </p>
+                <p>Item: {child.currentItem ? child.currentItem : "none"}</p>
+  
+                <div className="form-group">
+                  <select value={label} onChange={(e) => setLabel(e.target.value)}>
+                    <option value="mama">mama</option>
+                    <option value="papa">papa</option>
+                    <option value="broer">broer</option>
+                    <option value="zus">zus</option>
+                    <option value="vriend">vriend</option>
+                    <option value="familie">familie</option>
+                  </select>
+                </div>
+  
+                <div className="button-group">
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      createEvent(child._id, "CHECK_IN");
+                    }}
+                  >
+                    Check-in
+                  </button>
+  
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      createEvent(child._id, "CHECK_OUT");
+                    }}
+                  >
+                    Check-out
+                  </button>
+                </div>
+  
+                <div className="button-group">
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      punishStart(child._id);
+                    }}
+                  >
+                    Punish start
+                  </button>
+  
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      punishEnd(child._id);
+                    }}
+                  >
+                    Punish end
+                  </button>
+                </div>
+              </div>
+            ))}
           </div>
-
-          
-
-          {filteredAndSortedChildren.length === 0 && <p className="no-children">No children found</p>}
-
-          {filteredAndSortedChildren.map((child) => (
-            <div
-              key={child._id}
-              className={`child-card ${
-                selectedChildId === child._id ? "selected" : ""
-              }`}
-              onClick={() => setSelectedChildId(child._id)}
-            >
-              <strong>{child.name}</strong>
-              <p>Status: {child.status}</p>
-              <p>Restricted: {String(child.isRestricted)}</p>
-              <p>Restricted until: {child.restrictedUntil ? new Date(child.restrictedUntil).toLocaleString() : "no"}</p>
-              <p>Item: {child.currentItem ? child.currentItem : "none"}</p>
-
-              {/* label selector */}
-              <div className="form-group">
-                <select
-                  value={label}
-                  onChange={(e) => setLabel(e.target.value)}
-                >
-                  <option value="mama">mama</option>
-                  <option value="papa">papa</option>
-                  <option value="broer">broer</option>
-                  <option value="zus">zus</option>
-                  <option value="vriend">vriend</option>
-                  <option value="familie">familie</option>
-                </select>
-              </div>
-
-              <div className="button-group">
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    createEvent(child._id, "CHECK_IN");
-                  }}
-                >
-                  Check-in
-                </button>
-
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    createEvent(child._id, "CHECK_OUT");
-                  }}
-                >
-                  Check-out
-                </button>
-              </div>
-
-              {/* Punish buttons */}
-              <div className="button-group">
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    punishStart(child._id);
-                  }}
-                >
-                  Punish start
-                </button>
-
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    punishEnd(child._id);
-                  }}
-                >
-                  Punish end
-                </button>
-              </div>
-            </div>
-          ))}
-        </div>
-
-        <div className="events-panel">
-          <h2>Events</h2>
-
-{selectedChild && (
-            <div>
-              <div className="child-profile">
-                <p><strong>Name:</strong> {selectedChild.name}</p>
-                <p><strong>Email:</strong> {selectedChild.email}</p>
-                <p><strong>Current item:</strong> {selectedChild.currentItem || "none"}</p>
-                <p><strong>Restricted:</strong> {selectedChild.isRestricted ? "Yes" : "No"}</p>
-              </div>
-
-              <div className="child-stats">
-                <h3>Stats</h3>
-                <p><strong>Punishments:</strong> {totalPunishments}</p>
-                <p><strong>Punish time total:</strong> {totalPunishmentMinutes} min</p>
-
-                <p><strong>Loans:</strong> {totalLoans}</p>
-                <p><strong>Loan items:</strong> {borrowedItems.join(", ") || "none"}</p>
-
-                <div className="mt-md">
-                  <p className="text-secondary"><strong>Dropped by:</strong></p>
-                  {Object.keys(dropOffCounts).map((label) => (
-                    <p key={label} className="text-secondary ml-sm">{label}: {dropOffCounts[label]}</p>
-                  ))}
+  
+          <div className="events-panel">
+            <h2>Events</h2>
+  
+            {selectedChild && (
+              <div>
+                <div className="child-profile">
+                  <p><strong>Name:</strong> {selectedChild.name}</p>
+                  <p><strong>Email:</strong> {selectedChild.email}</p>
+                  <p><strong>Current item:</strong> {selectedChild.currentItem || "none"}</p>
+                  <p><strong>Restricted:</strong> {selectedChild.isRestricted ? "Yes" : "No"}</p>
                 </div>
-
-                <div className="mt-md">
-                  <p className="text-secondary"><strong>Picked up by:</strong></p>
-                  {Object.keys(pickUpCounts).map((label) => (
-                    <p key={label} className="text-secondary ml-sm">{label}: {pickUpCounts[label]}</p>
-                  ))}
+  
+                <div className="child-stats">
+                  <h3>Stats</h3>
+                  <p><strong>Punishments:</strong> {totalPunishments}</p>
+                  <p><strong>Punish time total:</strong> {totalPunishmentMinutes} min</p>
+  
+                  <p><strong>Loans:</strong> {totalLoans}</p>
+                  <p><strong>Loan items:</strong> {borrowedItems.join(", ") || "none"}</p>
+  
+                  <div className="mt-md">
+                    <p className="text-secondary"><strong>Dropped by:</strong></p>
+                    {Object.keys(dropOffCounts).map((label) => (
+                      <p key={label} className="text-secondary ml-sm">
+                        {label}: {dropOffCounts[label]}
+                      </p>
+                    ))}
+                  </div>
+  
+                  <div className="mt-md">
+                    <p className="text-secondary"><strong>Picked up by:</strong></p>
+                    {Object.keys(pickUpCounts).map((label) => (
+                      <p key={label} className="text-secondary ml-sm">
+                        {label}: {pickUpCounts[label]}
+                      </p>
+                    ))}
+                  </div>
                 </div>
               </div>
-            </div>
-          )}
-
-          {!selectedChildId && <p className="text-center text-secondary">Select a child to see events.</p>}
-
-          {selectedChildId && events.length === 0 && (
-            <p className="text-center text-secondary">No events for this child.</p>
-          )}
-
-          {events.map((event) => (
-            <div key={event._id} className="event-item">
-              <strong>
-                {event.type} {event.label ? `(${event.label})` : ""}
-                {event.durationMinutes != null && ` - ${event.durationMinutes} min`}
-              </strong>
-              <br />
-              <small>{new Date(event.timestamp).toLocaleString()}</small>
-            </div>
-          ))}
+            )}
+  
+            {!selectedChildId && (
+              <p className="text-center text-secondary">Select a child to see events.</p>
+            )}
+  
+            {selectedChildId && events.length === 0 && (
+              <p className="text-center text-secondary">No events for this child.</p>
+            )}
+  
+            {events.map((event) => (
+              <div key={event._id} className="event-item">
+                <strong>
+                  {event.type} {event.label ? `(${event.label})` : ""}
+                  {event.durationMinutes != null && ` - ${event.durationMinutes} min`}
+                </strong>
+                <br />
+                <small>{new Date(event.timestamp).toLocaleString()}</small>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     </div>
   );
-}
+}  
