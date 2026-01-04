@@ -221,7 +221,43 @@ export default function App() {
         <div className="children-panel">
           <h2>Children</h2>
 
-          {/* ✅ checkbox filter */}
+          {/* ÉTAPE 16 - Filter UI */}
+          <div className="filters">
+            <label>
+              <input
+                type="checkbox"
+                checked={filterPresent}
+                onChange={(e) => setFilterPresent(e.target.checked)}
+              />
+              Present only
+            </label>
+
+            <label>
+              <input
+                type="checkbox"
+                checked={filterRestricted}
+                onChange={(e) => setFilterRestricted(e.target.checked)}
+              />
+              Restricted only
+            </label>
+
+            <label>
+              <input
+                type="checkbox"
+                checked={filterHasItem}
+                onChange={(e) => setFilterHasItem(e.target.checked)}
+              />
+              Has item only
+            </label>
+
+            <select value={sortBy} onChange={(e) => setSortBy(e.target.value)}>
+              <option value="name">Sort: Name</option>
+              <option value="punishments">Sort: Punishments</option>
+              <option value="loans">Sort: Loans</option>
+            </select>
+          </div>
+
+          {/* Legacy checkbox filter */}
           <label style={{ display: "block", marginBottom: 10 }}>
             <input
               type="checkbox"

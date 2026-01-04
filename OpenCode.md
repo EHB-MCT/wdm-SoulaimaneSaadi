@@ -711,3 +711,157 @@ if (sortBy === "loans") {
 
 ### Reason:
 Crée une liste d'enfants dynamique qui s'adapte aux filtres et au tri choisis par l'admin, sans requêtes backend supplémentaires.
+
+## Fix 20: ÉTAPE 15 - Filtering and Sorting Bug Fixes
+**Date:** 2026-01-04  
+**File:** admin-frontend/src/App.jsx  
+**Lines:** 147-181, 234-236
+
+### Ta demande:
+"⚠️ Mini bug 1: tes values de sortBy doivent matcher" et "⚠️ Mini bug 2: a.name.localeCompare(b.name) peut crash si name undefined" - Tu voulais que je corrige deux bugs dans le système de filtrage/tri.
+
+### Solution:
+Corrigé les bugs avec la version clean fournie:
+
+```javascript
+// ÉTAPE 15 — Filtrage + tri (display list)
+let filteredAndSortedChildren = [...children];
+
+if (filterPresent) {
+  filteredAndSortedChildren = filteredAndSortedChildren.filter(
+    (child) => child.status === "present"
+  );
+}
+
+if (filterRestricted) {
+  filteredAndSortedChildren = filteredAndSortedChildren.filter(
+    (child) => child.isRestricted === true
+  );
+}
+
+if (filterHasItem) {
+  filteredAndSortedChildren = filteredAndSortedChildren.filter(
+    (child) => Boolean(child.currentItem)
+  );
+}
+
+if (sortBy === "name") {
+  filteredAndSortedChildren.sort((a, b) =>
+    (a.name ?? "").localeCompare(b.name ?? "")
+  );
+}
+
+if (sortBy === "punishments") {
+  filteredAndSortedChildren.sort((a, b) => {
+    const aPunishCount = statsByChildId[a._id]?.punish || 0;
+    const bPunishCount = statsByChildId[b._id]?.punish || 0;
+    return bPunishCount - aPunishCount;
+  });
+}
+
+if (sortBy === "loans") {
+  filteredAndSortedChildren.sort((a, b) => {
+    const aLoanCount = statsByChildId[a._id]?.loans || 0;
+    const bLoanCount = statsByChildId[b._id]?.loans || 0;
+    return bLoanCount - aLoanCount;
+  });
+}
+
+// Changement dans le render:
+{filteredAndSortedChildren.length === 0 && <p>No children yet.</p>}
+{filteredAndSortedChildren.map((child) => (
+```
+
+### Bugs corrigés:
+1. **Valeurs sortBy mismatch**:
+   - Avant: `"punish"` / `"loans"`
+   - Après: `"punishments"` / `"loans"` (cohérent avec dropdown)
+
+2. **Crash potentiel si name undefined**:
+   - Avant: `a.name.localeCompare(b.name)`
+   - Après: `(a.name ?? "").localeCompare(b.name ?? "")`
+
+3. **Amélioration de clarté**:
+   - Utilise `Boolean(child.currentItem)` au lieu de `child.currentItem`
+   - Formatage cohérent du code
+
+### Changement render:
+- `filteredChildren` → `filteredAndSortedChildren`
+- Maintient la cohérence avec la nouvelle variable calculée
+
+### Reason:
+Assure la cohérence entre les valeurs du dropdown et les conditions de tri, et prévient les crashes si des noms sont undefined, rendant le système 100% robuste.
+
+## Fix 21: ÉTAPE 16 - Filter UI Implementation
+**Date:** 2026-01-04  
+**File:** admin-frontend/src/App.jsx  
+**Lines:** 221-248
+
+### Ta demande:
+"Stap 16 — Voeg de filter UI toe (boven de children map)" - Tu voulais que j'ajoute l'interface utilisateur pour les filtres et le tri.
+
+### Solution:
+Ajouté l'interface de filtrage complète après le titre "Children":
+
+```javascript
+{/* ÉTAPE 16 - Filter UI */}
+<div className="filters">
+  <label>
+    <input
+      type="checkbox"
+      checked={filterPresent}
+      onChange={(e) => setFilterPresent(e.target.checked)}
+    />
+    Present only
+  </label>
+
+  <label>
+    <input
+      type="checkbox"
+      checked={filterRestricted}
+      onChange={(e) => setFilterRestricted(e.target.checked)}
+    />
+    Restricted only
+  </label>
+
+  <label>
+    <input
+      type="checkbox"
+      checked={filterHasItem}
+      onChange={(e) => setFilterHasItem(e.target.checked)}
+    />
+    Has item only
+  </label>
+
+  <select value={sortBy} onChange={(e) => setSortBy(e.target.value)}>
+    <option value="name">Sort: Name</option>
+    <option value="punishments">Sort: Punishments</option>
+    <option value="loans">Sort: Loans</option>
+  </select>
+</div>
+```
+
+### Composants UI ajoutés:
+- **Case "Present only"** : Filtre les enfants présents
+- **Case "Restricted only"** : Filtre les enfants restreints
+- **Case "Has item only"** : Filtre les enfants ayant un item
+- **Dropdown "Sort"** : Tri par Nom / Punitions / Emprunts
+
+### Liaison avec les états:
+- `filterPresent` → `setFilterPresent(e.target.checked)`
+- `filterRestricted` → `setFilterRestricted(e.target.checked)`
+- `filterHasItem` → `setFilterHasItem(e.target.checked)`
+- `sortBy` → `setSortBy(e.target.value)`
+
+### Valeurs dropdown cohérentes:
+- `"name"` → tri alphabétique
+- `"punishments"` → tri par nombre de punitions
+- `"loans"` → tri par nombre d'emprunts
+
+### Positionnement:
+- Juste après `<h2>Children</h2>`
+- Avant l'affichage de la liste des enfants
+- Classe CSS "filters" pour style futur
+
+### Reason:
+Fournit une interface complète et intuitive pour filtrer et trier la liste des enfants, connectée directement à la logique de filtrage/tri implémentée aux étapes précédentes.
