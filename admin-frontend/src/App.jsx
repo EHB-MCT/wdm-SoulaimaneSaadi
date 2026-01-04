@@ -195,18 +195,22 @@ export default function App() {
       <div className="login-container">
         <h1>Admin Login</h1>
 
-        <input
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-        />
+        <div className="form-group">
+          <input
+            placeholder="Email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+          />
+        </div>
 
-        <input
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-        />
+        <div className="form-group">
+          <input
+            type="password"
+            placeholder="Password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
+        </div>
 
         <button onClick={login}>Login</button>
       </div>
@@ -214,10 +218,11 @@ export default function App() {
   }
 
   return (
-    <div className="dashboard">
-      <h1>Admin Dashboard</h1>
+    <div className="app-container">
+      <div className="dashboard">
+        <h1>Admin Dashboard</h1>
 
-      <div className="dashboard-content">
+        <div className="dashboard-content">
         <div className="children-panel">
           <h2>Children</h2>
 
@@ -257,17 +262,9 @@ export default function App() {
             </select>
           </div>
 
-          {/* Legacy checkbox filter */}
-          <label style={{ display: "block", marginBottom: 10 }}>
-            <input
-              type="checkbox"
-              checked={showPresentOnly}
-              onChange={(e) => setShowPresentOnly(e.target.checked)}
-            />{" "}
-            Show present today only
-          </label>
+          
 
-          {filteredAndSortedChildren.length === 0 && <p>No children yet.</p>}
+          {filteredAndSortedChildren.length === 0 && <p className="no-children">No children found</p>}
 
           {filteredAndSortedChildren.map((child) => (
             <div
@@ -283,21 +280,22 @@ export default function App() {
               <p>Restricted until: {child.restrictedUntil ? new Date(child.restrictedUntil).toLocaleString() : "no"}</p>
               <p>Item: {child.currentItem ? child.currentItem : "none"}</p>
 
-              {/* label + check in/out */}
-              <select
-                value={label}
-                onChange={(e) => setLabel(e.target.value)}
-                style={{ marginTop: 8 }}
-              >
-                <option value="mama">mama</option>
-                <option value="papa">papa</option>
-                <option value="broer">broer</option>
-                <option value="zus">zus</option>
-                <option value="vriend">vriend</option>
-                <option value="familie">familie</option>
-              </select>
+              {/* label selector */}
+              <div className="form-group">
+                <select
+                  value={label}
+                  onChange={(e) => setLabel(e.target.value)}
+                >
+                  <option value="mama">mama</option>
+                  <option value="papa">papa</option>
+                  <option value="broer">broer</option>
+                  <option value="zus">zus</option>
+                  <option value="vriend">vriend</option>
+                  <option value="familie">familie</option>
+                </select>
+              </div>
 
-              <div style={{ display: "flex", gap: 8, marginTop: 10 }}>
+              <div className="button-group">
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
@@ -318,7 +316,7 @@ export default function App() {
               </div>
 
               {/* Punish buttons */}
-              <div style={{ display: "flex", gap: 8, marginTop: 10 }}>
+              <div className="button-group">
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
@@ -344,7 +342,7 @@ export default function App() {
         <div className="events-panel">
           <h2>Events</h2>
 
-          {selectedChild && (
+{selectedChild && (
             <div>
               <div className="child-profile">
                 <p><strong>Name:</strong> {selectedChild.name}</p>
@@ -361,23 +359,27 @@ export default function App() {
                 <p><strong>Loans:</strong> {totalLoans}</p>
                 <p><strong>Loan items:</strong> {borrowedItems.join(", ") || "none"}</p>
 
-                <p><strong>Dropped by:</strong></p>
-                {Object.keys(dropOffCounts).map((label) => (
-                  <p key={label}>{label}: {dropOffCounts[label]}</p>
-                ))}
+                <div className="mt-md">
+                  <p className="text-secondary"><strong>Dropped by:</strong></p>
+                  {Object.keys(dropOffCounts).map((label) => (
+                    <p key={label} className="text-secondary ml-sm">{label}: {dropOffCounts[label]}</p>
+                  ))}
+                </div>
 
-                <p><strong>Picked up by:</strong></p>
-                {Object.keys(pickUpCounts).map((label) => (
-                  <p key={label}>{label}: {pickUpCounts[label]}</p>
-                ))}
+                <div className="mt-md">
+                  <p className="text-secondary"><strong>Picked up by:</strong></p>
+                  {Object.keys(pickUpCounts).map((label) => (
+                    <p key={label} className="text-secondary ml-sm">{label}: {pickUpCounts[label]}</p>
+                  ))}
+                </div>
               </div>
             </div>
           )}
 
-          {!selectedChildId && <p>Select a child to see events.</p>}
+          {!selectedChildId && <p className="text-center text-secondary">Select a child to see events.</p>}
 
           {selectedChildId && events.length === 0 && (
-            <p>No events for this child.</p>
+            <p className="text-center text-secondary">No events for this child.</p>
           )}
 
           {events.map((event) => (

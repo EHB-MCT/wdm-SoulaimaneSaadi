@@ -60,32 +60,127 @@ export default function App() {
     if (child) loadPublicChildren();
   }, [child]);
 
-  if (!child) {
+if (!child) {
     return (
-      <div style={{ padding: 20 }}>
+      <div className="login-container">
         <h1>Child Login</h1>
 
-        <input
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-        />
+        <div className="form-group">
+          <input
+            placeholder="Email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+          />
+        </div>
 
-        <input
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-        />
+        <div className="form-group">
+          <input
+            type="password"
+            placeholder="Password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
+        </div>
 
-        <div style={{ marginTop: 10 }}>
+        <div className="button-group">
           <button onClick={login}>Login</button>
-          <button onClick={register} style={{ marginLeft: 8 }}>
-            Register
-          </button>
+          <button onClick={register}>Register</button>
         </div>
       </div>
     );
+  }
+
+  return (
+    <div className="app-container">
+      <div className="child-dashboard">
+        <div className="welcome-section">
+          <h1>Welcome {child.name}</h1>
+        </div>
+
+        <div className="info-card">
+          <div className="user-info">
+            <p><strong>Your item:</strong> {child.currentItem ? child.currentItem : "none"}</p>
+          </div>
+
+          <div className="button-group">
+            <button
+              disabled={child.isRestricted || !!child.currentItem}
+              onClick={async () => {
+                const res = await fetch("http://localhost:3000/loan/take", {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({
+                    childId: child._id,
+                    itemName: "Ball"
+                  })
+                });
+
+                if (res.ok) {
+                  await refreshChild();
+                  await loadPublicChildren();
+                  alert("You took the ball");
+                } else {
+                  const err = await res.json();
+                  alert(err.message || "Error");
+                }
+              }}
+            >
+              Take the ball
+            </button>
+
+            <button
+              disabled={!child.currentItem}
+              onClick={async () => {
+                const res = await fetch("http://localhost:3000/loan/return", {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({
+                    childId: child._id
+                  })
+                });
+
+                if (res.ok) {
+                  await refreshChild();
+                  await loadPublicChildren();
+                  alert("Returned");
+                } else {
+                  const err = await res.json();
+                  alert(err.message || "Error");
+                }
+              }}
+            >
+              Return item
+            </button>
+          </div>
+
+          {child.isRestricted && (
+            <div className="restricted-message">
+              You need to be more kind buddy
+            </div>
+          )}
+
+          {child.restrictedUntil && (
+            <div className="status-section">
+              <p><strong>Restricted until:</strong> {new Date(child.restrictedUntil).toLocaleString()}</p>
+            </div>
+          )}
+        </div>
+
+        <div className="info-card children-list">
+          <h2>Other kids</h2>
+
+          {publicChildren.map((publicChild) => (
+            <div key={publicChild._id} className="child-item">
+              <strong>{publicChild.name}</strong> —{" "}
+              <span className="text-secondary">
+                {publicChild.currentItem ? publicChild.currentItem : "nothing"}
+              </span>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
   }
 
   return (
