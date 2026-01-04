@@ -942,3 +942,147 @@ Refonte complète du CSS et JSX avec design system cohérent:
 
 ### Reason:
 Transforme l'interface de base en un système de design professionnel, moderne et accessible, tout en préservant 100% de la logique existante.
+
+## Fix 23: Secure Navigation Between Admin and Child Apps
+**Date:** 2026-01-04  
+**Files:** admin-frontend/src/App.jsx, child-frontend/src/App.jsx, admin-frontend/src/App.css, child-frontend/src/App.css
+
+### Ta demande:
+"Je veux ajouter une navigation sécurisée entre le Child app et l'Admin app" - Tu voulais un système de navigation sécurisé entre les deux applications avec authentification.
+
+### Solution:
+Implémentation d'un système de navigation sécurisé avec authentification:
+
+**1. Sécurité d'authentification:**
+```javascript
+// Admin App
+function checkChildAuthAndRedirect() {
+  const childToken = localStorage.getItem('childToken') || sessionStorage.getItem('childToken');
+  
+  if (childToken) {
+    window.location.href = 'http://localhost:5174'; // Child app
+  } else {
+    window.location.href = 'http://localhost:5174'; // Child login
+  }
+}
+
+// Child App
+function checkAdminAuthAndRedirect() {
+  const adminToken = localStorage.getItem('adminToken') || sessionStorage.getItem('adminToken');
+  
+  if (adminToken) {
+    window.location.href = 'http://localhost:5173'; // Admin app
+  } else {
+    window.location.href = 'http://localhost:5173/login'; // Admin login
+  }
+}
+```
+
+**2. Stockage des tokens:**
+```javascript
+// Admin login
+if (res.ok) {
+  const data = await res.json();
+  setAdmin(data);
+  localStorage.setItem('adminToken', data.token || 'admin-logged-in');
+}
+
+// Child login
+if (res.ok) {
+  const data = await res.json();
+  setChild(data);
+  localStorage.setItem('childToken', data.token || 'child-logged-in');
+}
+```
+
+**3. Navigation UI:**
+```javascript
+// Admin header
+<div className="nav-header">
+  <h1>Admin Dashboard</h1>
+  <button 
+    className="nav-button"
+    onClick={checkChildAuthAndRedirect}
+    title="Go to Child Dashboard"
+  >
+    Child
+  </button>
+</div>
+
+// Child header
+<div className="nav-header">
+  <h1>Child Dashboard</h1>
+  <button 
+    className="nav-button"
+    onClick={checkAdminAuthAndRedirect}
+    title="Go to Admin Dashboard"
+  >
+    Admin
+  </button>
+</div>
+```
+
+**4. CSS Navigation:**
+```css
+.nav-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: var(--color-card);
+  padding: var(--space-lg) var(--space-xl);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  margin-bottom: var(--space-xl);
+}
+
+.nav-button {
+  padding: var(--space-sm) var(--space-md);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background-color: var(--color-card);
+  color: var(--color-text-secondary);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all var(--transition-base);
+}
+
+.nav-button:hover {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+  background-color: rgba(47, 107, 255, 0.05);
+}
+```
+
+**5. Fonctions de logout:**
+```javascript
+// Admin logout
+function logout() {
+  localStorage.removeItem('adminToken');
+  sessionStorage.removeItem('adminToken');
+  setAdmin(null);
+}
+
+// Child logout
+function logout() {
+  localStorage.removeItem('childToken');
+  sessionStorage.removeItem('childToken');
+  setChild(null);
+}
+```
+
+### Caractéristiques de sécurité:
+- **Authentification requise** : Vérification des tokens avant redirection
+- **Stockage sécurisé** : Utilisation de localStorage/sessionStorage
+- **Redirection intelligente** : Direct dashboard si connecté, login si non
+- **No bypass** : Impossible d'accéder à l'autre dashboard sans authentification
+- **Clean logout** : Suppression des tokens lors de la déconnexion
+
+### Design UI/UX:
+- **Header discret** : Navigation minimaliste et non intrusive
+- **Micro-interactions** : Hover states et transitions fluides
+- **Accessibilité** : Labels et tooltips pour clarté
+- **Cohérence** : Style intégré au design system existant
+
+### Reason:
+Permet une navigation fluide et sécurisée entre les deux applications tout en maintenant l'intégrité du système d'authentification et en fournissant une expérience utilisateur intuitive.

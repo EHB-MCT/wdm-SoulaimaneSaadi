@@ -34,6 +34,13 @@ export default function App() {
     }
   }
 
+  // Clean up admin token on logout
+  function logout() {
+    localStorage.removeItem('adminToken');
+    sessionStorage.removeItem('adminToken');
+    setAdmin(null);
+  }
+
   async function login() {
     const res = await fetch("http://localhost:3000/admin/login", {
       method: "POST",
@@ -44,6 +51,8 @@ export default function App() {
     if (res.ok) {
       const data = await res.json();
       setAdmin(data);
+      // Store admin token for secure navigation
+      localStorage.setItem('adminToken', data.token || 'admin-logged-in');
     } else {
       alert("Login failed");
     }

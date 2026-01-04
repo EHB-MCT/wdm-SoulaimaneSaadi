@@ -20,6 +20,13 @@ export default function App() {
     }
   }
 
+  // Clean up child token on logout
+  function logout() {
+    localStorage.removeItem('childToken');
+    sessionStorage.removeItem('childToken');
+    setChild(null);
+  }
+
   async function login() {
     const res = await fetch("http://localhost:3000/auth/login", {
       method: "POST",
@@ -30,6 +37,8 @@ export default function App() {
     if (res.ok) {
       const data = await res.json();
       setChild(data);
+      // Store child token for secure navigation
+      localStorage.setItem('childToken', data.token || 'child-logged-in');
     } else {
       alert("Login failed");
     }
